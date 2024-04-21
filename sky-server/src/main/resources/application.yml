@@ -28,3 +28,13 @@ logging:
         controller: info
         service: info
         mapper: debug
+
+# 项目自定义配置
+sky:
+  jwt:
+    # 设置jwt签名加密时使用的秘钥
+    admin-secret-key: wei
+    # 设置jwt过期时间
+    admin-ttl: 7200000
+    # 设置前端传递过来的令牌名称
+    admin-token-name: token
