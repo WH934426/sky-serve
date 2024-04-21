@@ -58,4 +58,14 @@ public class EmployeeController {
 
         return Result.success(employeeLoginVO);
     }
+
+
+    /**
+     * 员工退出登录
+     * @return 提示消息
+     */
+    @PostMapping("/logout")
+    public Result<String> empLogout() {
+        return Result.success();
+    }
 }
