@@ -1,6 +1,7 @@
 package com.wh.controller.admin;
 
 import com.wh.constant.JwtClaimsConstant;
+import com.wh.dto.EmployeeDTO;
 import com.wh.dto.EmployeeLoginDTO;
 import com.wh.entity.EmployeeEntity;
 import com.wh.properties.JwtProperties;
@@ -66,6 +67,18 @@ public class EmployeeController {
      */
     @PostMapping("/logout")
     public Result<String> empLogout() {
+        return Result.success();
+    }
+
+    /**
+     * 添加员工
+     * @param employeeDTO 添加员工需要的dto类
+     * @return 提示信息
+     */
+    @PostMapping
+    public Result<Void> addEmp(@RequestBody EmployeeDTO employeeDTO) {
+        log.info("新增员工: {}",employeeDTO);
+        employeeService.addEmp(employeeDTO);
         return Result.success();
     }
 }

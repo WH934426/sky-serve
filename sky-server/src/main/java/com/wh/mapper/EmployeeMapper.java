@@ -16,4 +16,10 @@ public interface EmployeeMapper {
      */
     @Select("select * from employee where username = #{username}")
     EmployeeEntity getByUsername(String username);
+
+    /**
+     * 添加员工
+     * @param employee 员工实体
+     */
+    void addEmp(EmployeeEntity employee);
 }
