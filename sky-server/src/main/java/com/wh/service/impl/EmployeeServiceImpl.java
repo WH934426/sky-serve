@@ -1,16 +1,20 @@
 package com.wh.service.impl;
 
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
 import com.wh.constant.MessageConstant;
 import com.wh.constant.PasswordConstant;
 import com.wh.constant.StatusConstant;
 import com.wh.context.BaseContext;
 import com.wh.dto.EmployeeDTO;
 import com.wh.dto.EmployeeLoginDTO;
+import com.wh.dto.EmployeePageQueryDTO;
 import com.wh.entity.EmployeeEntity;
 import com.wh.exception.AccountLockedException;
 import com.wh.exception.AccountNotFoundException;
 import com.wh.exception.PasswordErrorException;
 import com.wh.mapper.EmployeeMapper;
+import com.wh.result.PageResult;
 import com.wh.service.EmployeeService;
 import jakarta.annotation.Resource;
 import org.springframework.beans.BeanUtils;
@@ -18,6 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -86,5 +91,25 @@ public class EmployeeServiceImpl implements EmployeeService {
         employee.setUpdateUser(BaseContext.getCurrentId());
 
         employeeMapper.addEmp(employee);
+    }
+
+    /**
+     * 员工分页查询
+     *
+     * @param employeePageQueryDTO 员工分页查询需要的dto
+     * @return 分页结果类封装后的员工信息
+     */
+    @Override
+    public PageResult<EmployeeEntity> queryEmpByPage(EmployeePageQueryDTO employeePageQueryDTO) {
+        // 开始分页，传入页码和每页大小
+        PageHelper.startPage(employeePageQueryDTO.getPage(), employeePageQueryDTO.getPageSize());
+        // 根据分页查询条件查询员工信息
+        Page<EmployeeEntity> empByPage = employeeMapper.queryEmpByPage(employeePageQueryDTO);
+        // 获取总记录数
+        long total = empByPage.getTotal();
+        // 获取分页查询结果
+        List<EmployeeEntity> records = empByPage.getResult();
+        // 返回分页结果
+        return new PageResult<>(total, records);
     }
 }

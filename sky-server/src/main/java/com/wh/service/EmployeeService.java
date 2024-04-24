@@ -2,7 +2,9 @@ package com.wh.service;
 
 import com.wh.dto.EmployeeDTO;
 import com.wh.dto.EmployeeLoginDTO;
+import com.wh.dto.EmployeePageQueryDTO;
 import com.wh.entity.EmployeeEntity;
+import com.wh.result.PageResult;
 
 /**
  * 员工管理接口
@@ -21,4 +23,11 @@ public interface EmployeeService {
      * @param employeeDTO 添加员工需要的dto类
      */
     void addEmp(EmployeeDTO employeeDTO);
+
+    /**
+     * 员工分页查询
+     * @param employeePageQueryDTO 员工分页查询需要的dto
+     * @return 分页结果类封装后的员工信息
+     */
+    PageResult<EmployeeEntity> queryEmpByPage(EmployeePageQueryDTO employeePageQueryDTO);
 }

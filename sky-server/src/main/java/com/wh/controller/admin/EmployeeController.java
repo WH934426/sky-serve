@@ -3,18 +3,17 @@ package com.wh.controller.admin;
 import com.wh.constant.JwtClaimsConstant;
 import com.wh.dto.EmployeeDTO;
 import com.wh.dto.EmployeeLoginDTO;
+import com.wh.dto.EmployeePageQueryDTO;
 import com.wh.entity.EmployeeEntity;
 import com.wh.properties.JwtProperties;
+import com.wh.result.PageResult;
 import com.wh.result.Result;
 import com.wh.service.EmployeeService;
 import com.wh.utils.JwtUtil;
 import com.wh.vo.EmployeeLoginVO;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -80,5 +79,17 @@ public class EmployeeController {
         log.info("新增员工: {}",employeeDTO);
         employeeService.addEmp(employeeDTO);
         return Result.success();
+    }
+
+    /**
+     * 员工分页查询
+     * @param employeePageQueryDTO 员工分页查询需要的dto
+     * @return 员工分页查询结果
+     */
+    @GetMapping("/page")
+    public Result<PageResult<EmployeeEntity>> queryEmpByPage(EmployeePageQueryDTO employeePageQueryDTO){
+        log.info("员工分页查询，参数为:{}",employeePageQueryDTO);
+        PageResult<EmployeeEntity> pageResult = employeeService.queryEmpByPage(employeePageQueryDTO);
+        return Result.success(pageResult);
     }
 }
