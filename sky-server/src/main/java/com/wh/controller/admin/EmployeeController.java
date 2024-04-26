@@ -92,4 +92,17 @@ public class EmployeeController {
         PageResult<EmployeeEntity> pageResult = employeeService.queryEmpByPage(employeePageQueryDTO);
         return Result.success(pageResult);
     }
+
+    /**
+     * 启用禁用员工账号
+     * @param status 员工账号状态，1正常，0禁用
+     * @param id 员工id
+     * @return 状态信息
+     */
+    @PostMapping("/status/{status}")
+    public Result<Void> updateEmpAccount(@PathVariable Integer status, Long id) {
+        log.info("启用禁用员工账号: {}", status);
+        employeeService.startOrStopEmpAccount(status, id);
+        return Result.success();
+    }
 }

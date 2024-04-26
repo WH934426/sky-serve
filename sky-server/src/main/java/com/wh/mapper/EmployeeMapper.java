@@ -31,4 +31,10 @@ public interface EmployeeMapper {
      * @return 分页后的员工信息
      */
     Page<EmployeeEntity> queryEmpByPage(EmployeePageQueryDTO employeePageQueryDTO);
+
+    /**
+     * 启用禁用员工账号
+     * @param employee 员工实体
+     */
+    void updateEmp(EmployeeEntity employee);
 }

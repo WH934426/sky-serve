@@ -29,5 +29,12 @@ public interface EmployeeService {
      * @param employeePageQueryDTO 员工分页查询需要的dto
      * @return 分页结果类封装后的员工信息
      */
-    PageResult<EmployeeEntity> queryEmpByPage(EmployeePageQueryDTO employeePageQueryDTO);
+        PageResult<EmployeeEntity> queryEmpByPage(EmployeePageQueryDTO employeePageQueryDTO);
+
+    /**
+     * 启用或禁用员工账号
+     * @param status 员工账号状态
+     * @param id 员工id
+     */
+    void startOrStopEmpAccount(Integer status, Long id);
 }
