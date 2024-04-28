@@ -105,4 +105,28 @@ public class EmployeeController {
         employeeService.startOrStopEmpAccount(status, id);
         return Result.success();
     }
+
+    /**
+     * 根据id查询员工信息
+     * @param id 员工id
+     * @return 员工信息
+     */
+    @GetMapping("/{id}")
+    public Result<EmployeeEntity> getEmpById(@PathVariable Long id) {
+        log.info("根据id查询员工信息: {}", id);
+        EmployeeEntity employee = employeeService.getEmpById(id);
+        return Result.success(employee);
+    }
+
+    /**
+     * 更新员工信息
+     * @param employeeDTO 员工需要更新的dto类
+     * @return 提示信息
+     */
+    @PutMapping
+    public Result<Void> updateEmp(@RequestBody EmployeeDTO employeeDTO) {
+        log.info("更新员工信息: {}", employeeDTO);
+        employeeService.updateEmp(employeeDTO);
+        return Result.success();
+    }
 }
