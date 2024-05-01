@@ -1,10 +1,14 @@
 package com.wh.service.impl;
 
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
 import com.wh.constant.StatusConstant;
 import com.wh.context.BaseContext;
 import com.wh.dto.CategoryDTO;
+import com.wh.dto.CategoryPageQueryDTO;
 import com.wh.entity.CategoryEntity;
 import com.wh.mapper.CategoryMapper;
+import com.wh.result.PageResult;
 import com.wh.service.CategoryService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -43,5 +47,19 @@ public class CategoryServiceImpl implements CategoryService {
         category.setUpdateUser(BaseContext.getCurrentId());
         // 添加菜品分类
         categoryMapper.addCate(category);
+    }
+
+    /**
+     * 菜品分类分页查询
+     *
+     * @param categoryPageQueryDTO 菜品分类分页查询需要的条件
+     * @return 分页后的查询结果
+     */
+    @Override
+    public PageResult<CategoryEntity> queryCateByPage(CategoryPageQueryDTO categoryPageQueryDTO) {
+        PageHelper.startPage(categoryPageQueryDTO.getPage(),categoryPageQueryDTO.getPageSize());
+        try (Page<CategoryEntity> queryCateByPage = categoryMapper.queryCateByPage(categoryPageQueryDTO)) {
+            return new PageResult<>(queryCateByPage.getTotal(), queryCateByPage.getResult());
+        }
     }
 }

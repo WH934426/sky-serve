@@ -6,7 +6,14 @@
 
     <insert id="addCate">
         insert into category(type, name, sort, status, create_time, update_time, create_user, update_user)
-        VALUES
-            (#{type}, #{name}, #{sort}, #{status}, #{createTime}, #{updateTime}, #{createUser}, #{updateUser})
+        VALUES (#{type}, #{name}, #{sort}, #{status}, #{createTime}, #{updateTime}, #{createUser}, #{updateUser})
     </insert>
+    <select id="queryCateByPage" resultType="com.wh.entity.CategoryEntity">
+        select * from category
+        <where>
+            <if test="name != null and name != ''">and name like concat('%',#{name},'%')</if>
+            <if test="type != null">and type = #{type}</if>
+        </where>
+        order by sort asc, create_time desc
+    </select>
 </mapper>
