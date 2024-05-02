@@ -62,4 +62,16 @@ public class CategoryServiceImpl implements CategoryService {
             return new PageResult<>(queryCateByPage.getTotal(), queryCateByPage.getResult());
         }
     }
+
+    /**
+     * 根据id删除菜品分类
+     *
+     * @param id 菜品id
+     */
+    @Override
+    public void delCateById(Long id) {
+        log.info("需要删除的菜品id：{}",id);
+        // TODO 需要判断该分类是否被菜品/套餐关联，如果关联则不能删除
+        categoryMapper.delCateById(id);
+    }
 }

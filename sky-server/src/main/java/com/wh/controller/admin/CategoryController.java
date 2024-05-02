@@ -41,4 +41,16 @@ public class CategoryController {
         PageResult<CategoryEntity> pageResult = categoryService.queryCateByPage(categoryPageQueryDTO);
         return Result.success(pageResult);
     }
+
+    /**
+     * 删除菜品分类
+     * @param id 菜品分类id
+     * @return 提示信息
+     */
+    @DeleteMapping
+    public Result<String> deleteById(Long id){
+        log.info("删除分类：{}", id);
+        categoryService.delCateById(id);
+        return Result.success();
+    }
 }

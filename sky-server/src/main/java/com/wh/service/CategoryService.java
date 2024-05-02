@@ -22,4 +22,10 @@ public interface CategoryService {
      * @return 分页后的查询结果
      */
     PageResult<CategoryEntity> queryCateByPage(CategoryPageQueryDTO categoryPageQueryDTO);
+
+    /**
+     * 根据id删除菜品分类
+     * @param id 菜品id
+     */
+    void delCateById(Long id);
 }
