@@ -5,6 +5,8 @@ import com.wh.dto.CategoryPageQueryDTO;
 import com.wh.entity.CategoryEntity;
 import com.wh.result.PageResult;
 
+import java.util.List;
+
 /**
  * 菜品分类接口
  */
@@ -41,4 +43,12 @@ public interface CategoryService {
      * @param id 菜品分类id
      */
     void updateCateByType(Integer status,Long id);
+
+    /**
+     * 根据类型查询菜品分类
+     *
+     * @param type 菜品类型
+     * @return 菜品分类后的列表数据
+     */
+    List<CategoryEntity> getListByType(Integer type);
 }

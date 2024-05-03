@@ -15,6 +15,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 @Slf4j
@@ -104,5 +105,16 @@ public class CategoryServiceImpl implements CategoryService {
                 .updateUser(BaseContext.getCurrentId())
                 .build();
         categoryMapper.updateCate(category);
+    }
+
+    /**
+     * 根据类型查询菜品分类
+     *
+     * @param type 菜品类型
+     * @return 菜品分类后的列表数据
+     */
+    @Override
+    public List<CategoryEntity> getListByType(Integer type) {
+        return categoryMapper.getListByType(type);
     }
 }

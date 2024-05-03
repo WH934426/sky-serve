@@ -10,6 +10,8 @@ import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/admin/category")
 @Slf4j
@@ -82,5 +84,18 @@ public class CategoryController {
         log.info("修改分类状态:{}", status);
         categoryService.updateCateByType(status, id);
         return Result.success();
+    }
+
+    /**
+     * 根据类型查询菜品分类
+     *
+     * @param type 菜品类型
+     * @return 查询后的菜品分类列表
+     */
+    @GetMapping("/list")
+    public Result<List<CategoryEntity>> getListByType(Integer type) {
+        log.info("当前查询的菜品分类类型:{}", type);
+        List<CategoryEntity> list = categoryService.getListByType(type);
+        return Result.success(list);
     }
 }

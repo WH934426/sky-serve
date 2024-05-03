@@ -28,4 +28,10 @@
         </where>
         order by sort asc, create_time desc
     </select>
+    <select id="getListByType" resultType="com.wh.entity.CategoryEntity">
+        select * from category
+        where status = 1
+        <if test="type != null">and type=#{type}</if>
+        order by sort ,create_time desc
+    </select>
 </mapper>
