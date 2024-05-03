@@ -53,4 +53,16 @@ public class CategoryController {
         categoryService.delCateById(id);
         return Result.success();
     }
+
+    /**
+     * 修改菜品分类
+     * @param categoryDTO 修改菜品分类需要的dto
+     * @return 提示信息
+     */
+    @PutMapping
+    public Result<String> update(@RequestBody CategoryDTO categoryDTO){
+        log.info("修改分类:{}",categoryDTO);
+        categoryService.updateCate(categoryDTO);
+        return Result.success();
+    }
 }

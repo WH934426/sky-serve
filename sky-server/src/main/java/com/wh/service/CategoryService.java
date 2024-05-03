@@ -28,4 +28,10 @@ public interface CategoryService {
      * @param id 菜品id
      */
     void delCateById(Long id);
+
+    /**
+     * 修改菜品分类
+     * @param categoryDTO 修改菜品分类需要的dto
+     */
+    void updateCate(CategoryDTO categoryDTO);
 }

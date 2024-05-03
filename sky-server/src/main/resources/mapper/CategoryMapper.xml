@@ -8,6 +8,18 @@
         insert into category(type, name, sort, status, create_time, update_time, create_user, update_user)
         VALUES (#{type}, #{name}, #{sort}, #{status}, #{createTime}, #{updateTime}, #{createUser}, #{updateUser})
     </insert>
+    <update id="updateCate" parameterType="CategoryEntity">
+        update category
+        <set>
+            <if test="type != null">type = #{type},</if>
+            <if test="name != null and name != ''">name = #{name},</if>
+            <if test="sort != null">sort = #{sort},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="updateUser != null">update_user = #{updateUser}</if>
+        </set>
+        where id = #{id}
+    </update>
     <select id="queryCateByPage" resultType="com.wh.entity.CategoryEntity">
         select * from category
         <where>

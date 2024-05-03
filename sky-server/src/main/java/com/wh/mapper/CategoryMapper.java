@@ -1,6 +1,7 @@
 package com.wh.mapper;
 
 import com.github.pagehelper.Page;
+import com.wh.dto.CategoryDTO;
 import com.wh.dto.CategoryPageQueryDTO;
 import com.wh.entity.CategoryEntity;
 import org.apache.ibatis.annotations.Delete;
@@ -31,4 +32,10 @@ public interface CategoryMapper {
      */
     @Delete("delete from category where id = #{id}")
     void delCateById(Long id);
+
+    /**
+     * 修改菜品分类
+     * @param category 修改菜品分类
+     */
+    void updateCate(CategoryEntity category);
 }

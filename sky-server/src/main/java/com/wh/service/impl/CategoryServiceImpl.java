@@ -36,7 +36,7 @@ public class CategoryServiceImpl implements CategoryService {
     public void addCate(CategoryDTO categoryDTO) {
         CategoryEntity category = new CategoryEntity();
         // 将categoryDTO的数据复制到category中
-        BeanUtils.copyProperties(categoryDTO,category);
+        BeanUtils.copyProperties(categoryDTO, category);
         // 将分类状态默认为禁用状态
         category.setStatus(StatusConstant.DISABLE);
         // 设置创建时间和更新时间
@@ -57,7 +57,7 @@ public class CategoryServiceImpl implements CategoryService {
      */
     @Override
     public PageResult<CategoryEntity> queryCateByPage(CategoryPageQueryDTO categoryPageQueryDTO) {
-        PageHelper.startPage(categoryPageQueryDTO.getPage(),categoryPageQueryDTO.getPageSize());
+        PageHelper.startPage(categoryPageQueryDTO.getPage(), categoryPageQueryDTO.getPageSize());
         try (Page<CategoryEntity> queryCateByPage = categoryMapper.queryCateByPage(categoryPageQueryDTO)) {
             return new PageResult<>(queryCateByPage.getTotal(), queryCateByPage.getResult());
         }
@@ -70,8 +70,22 @@ public class CategoryServiceImpl implements CategoryService {
      */
     @Override
     public void delCateById(Long id) {
-        log.info("需要删除的菜品id：{}",id);
+        log.info("需要删除的菜品id：{}", id);
         // TODO 需要判断该分类是否被菜品/套餐关联，如果关联则不能删除
         categoryMapper.delCateById(id);
+    }
+
+    /**
+     * 修改菜品
+     *
+     * @param categoryDTO 修改菜品分类需要的dto
+     */
+    @Override
+    public void updateCate(CategoryDTO categoryDTO) {
+        CategoryEntity category = new CategoryEntity();
+        BeanUtils.copyProperties(categoryDTO, category);
+        category.setUpdateTime(LocalDateTime.now());
+        category.setUpdateUser(BaseContext.getCurrentId());
+        categoryMapper.updateCate(category);
     }
 }
