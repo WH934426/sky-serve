@@ -20,35 +20,38 @@ public class CategoryController {
 
     /**
      * 新增菜品分类
+     *
      * @param categoryDTO 菜品分类dto
      * @return 提示信息
      */
     @PostMapping
     public Result<String> addCate(@RequestBody CategoryDTO categoryDTO) {
-        log.info("新增分类:{}",categoryDTO);
+        log.info("新增分类:{}", categoryDTO);
         categoryService.addCate(categoryDTO);
         return Result.success();
     }
 
     /**
      * 菜品分类分页查询
+     *
      * @param categoryPageQueryDTO 菜品分页查询需要的dto
      * @return 分页后的菜品结果
      */
     @GetMapping("/page")
     public Result<PageResult<CategoryEntity>> queryCateByPage(CategoryPageQueryDTO categoryPageQueryDTO) {
-        log.info("查询分类:{}",categoryPageQueryDTO);
+        log.info("查询分类:{}", categoryPageQueryDTO);
         PageResult<CategoryEntity> pageResult = categoryService.queryCateByPage(categoryPageQueryDTO);
         return Result.success(pageResult);
     }
 
     /**
      * 删除菜品分类
+     *
      * @param id 菜品分类id
      * @return 提示信息
      */
     @DeleteMapping
-    public Result<String> deleteById(Long id){
+    public Result<String> deleteById(Long id) {
         log.info("删除分类：{}", id);
         categoryService.delCateById(id);
         return Result.success();
@@ -56,13 +59,28 @@ public class CategoryController {
 
     /**
      * 修改菜品分类
+     *
      * @param categoryDTO 修改菜品分类需要的dto
      * @return 提示信息
      */
     @PutMapping
-    public Result<String> update(@RequestBody CategoryDTO categoryDTO){
-        log.info("修改分类:{}",categoryDTO);
+    public Result<String> updateCate(@RequestBody CategoryDTO categoryDTO) {
+        log.info("修改分类:{}", categoryDTO);
         categoryService.updateCate(categoryDTO);
+        return Result.success();
+    }
+
+    /**
+     * 启用禁用菜品分类
+     *
+     * @param status 菜品分类状态
+     * @param id     菜品分类id
+     * @return 提示信息
+     */
+    @PostMapping("/status/{status}")
+    public Result<String> updateCateByType(@PathVariable Integer status, Long id) {
+        log.info("修改分类状态:{}", status);
+        categoryService.updateCateByType(status, id);
         return Result.success();
     }
 }

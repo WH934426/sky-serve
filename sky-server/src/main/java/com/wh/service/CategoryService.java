@@ -34,4 +34,11 @@ public interface CategoryService {
      * @param categoryDTO 修改菜品分类需要的dto
      */
     void updateCate(CategoryDTO categoryDTO);
+
+    /**
+     * 启用禁用菜品分类
+     * @param status 分类状态
+     * @param id 菜品分类id
+     */
+    void updateCateByType(Integer status,Long id);
 }

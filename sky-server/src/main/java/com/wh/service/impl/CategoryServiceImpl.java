@@ -88,4 +88,21 @@ public class CategoryServiceImpl implements CategoryService {
         category.setUpdateUser(BaseContext.getCurrentId());
         categoryMapper.updateCate(category);
     }
+
+    /**
+     * 启用禁用菜品分类
+     *
+     * @param status 分类状态
+     * @param id     菜品分类id
+     */
+    @Override
+    public void updateCateByType(Integer status, Long id) {
+        CategoryEntity category = CategoryEntity.builder()
+                .id(id)
+                .status(status)
+                .updateTime(LocalDateTime.now())
+                .updateUser(BaseContext.getCurrentId())
+                .build();
+        categoryMapper.updateCate(category);
+    }
 }
