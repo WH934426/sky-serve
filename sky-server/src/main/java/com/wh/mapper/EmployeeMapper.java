@@ -1,8 +1,10 @@
 package com.wh.mapper;
 
 import com.github.pagehelper.Page;
+import com.wh.annotation.AutoFill;
 import com.wh.dto.EmployeePageQueryDTO;
 import com.wh.entity.EmployeeEntity;
+import com.wh.enumeration.OperationType;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 
@@ -23,6 +25,7 @@ public interface EmployeeMapper {
      * 添加员工
      * @param employee 员工实体
      */
+    @AutoFill(value = OperationType.INSERT)
     void addEmp(EmployeeEntity employee);
 
     /**
@@ -36,6 +39,7 @@ public interface EmployeeMapper {
      * 启用禁用员工账号
      * @param employee 员工实体
      */
+    @AutoFill(value = OperationType.UPDATE)
     void updateEmp(EmployeeEntity employee);
 
     /**

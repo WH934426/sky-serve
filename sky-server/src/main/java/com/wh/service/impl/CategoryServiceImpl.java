@@ -3,7 +3,6 @@ package com.wh.service.impl;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.wh.constant.StatusConstant;
-import com.wh.context.BaseContext;
 import com.wh.dto.CategoryDTO;
 import com.wh.dto.CategoryPageQueryDTO;
 import com.wh.entity.CategoryEntity;
@@ -14,7 +13,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -40,12 +38,6 @@ public class CategoryServiceImpl implements CategoryService {
         BeanUtils.copyProperties(categoryDTO, category);
         // 将分类状态默认为禁用状态
         category.setStatus(StatusConstant.DISABLE);
-        // 设置创建时间和更新时间
-        category.setCreateTime(LocalDateTime.now());
-        category.setUpdateTime(LocalDateTime.now());
-        // 设置创建人和更新人
-        category.setCreateUser(BaseContext.getCurrentId());
-        category.setUpdateUser(BaseContext.getCurrentId());
         // 添加菜品分类
         categoryMapper.addCate(category);
     }
@@ -85,8 +77,6 @@ public class CategoryServiceImpl implements CategoryService {
     public void updateCate(CategoryDTO categoryDTO) {
         CategoryEntity category = new CategoryEntity();
         BeanUtils.copyProperties(categoryDTO, category);
-        category.setUpdateTime(LocalDateTime.now());
-        category.setUpdateUser(BaseContext.getCurrentId());
         categoryMapper.updateCate(category);
     }
 
@@ -101,8 +91,6 @@ public class CategoryServiceImpl implements CategoryService {
         CategoryEntity category = CategoryEntity.builder()
                 .id(id)
                 .status(status)
-                .updateTime(LocalDateTime.now())
-                .updateUser(BaseContext.getCurrentId())
                 .build();
         categoryMapper.updateCate(category);
     }

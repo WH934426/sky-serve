@@ -1,8 +1,10 @@
 package com.wh.mapper;
 
 import com.github.pagehelper.Page;
+import com.wh.annotation.AutoFill;
 import com.wh.dto.CategoryPageQueryDTO;
 import com.wh.entity.CategoryEntity;
+import com.wh.enumeration.OperationType;
 import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Mapper;
 
@@ -19,6 +21,7 @@ public interface CategoryMapper {
      *
      * @param category 菜品分类
      */
+    @AutoFill(value = OperationType.INSERT)
     void addCate(CategoryEntity category);
 
     /**
@@ -42,6 +45,7 @@ public interface CategoryMapper {
      *
      * @param category 修改菜品分类
      */
+    @AutoFill(value = OperationType.UPDATE)
     void updateCate(CategoryEntity category);
 
     /**

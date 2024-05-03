@@ -5,7 +5,6 @@ import com.github.pagehelper.PageHelper;
 import com.wh.constant.MessageConstant;
 import com.wh.constant.PasswordConstant;
 import com.wh.constant.StatusConstant;
-import com.wh.context.BaseContext;
 import com.wh.dto.EmployeeDTO;
 import com.wh.dto.EmployeeLoginDTO;
 import com.wh.dto.EmployeePageQueryDTO;
@@ -21,7 +20,6 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 
@@ -83,12 +81,6 @@ public class EmployeeServiceImpl implements EmployeeService {
         employee.setStatus(StatusConstant.ENABLE);
         // 设置默认密码
         employee.setPassword(DigestUtils.md5DigestAsHex(PasswordConstant.DEFAULT_PASSWORD.getBytes()));
-        //设置当前记录的创建时间和修改时间
-        employee.setCreateTime(LocalDateTime.now());
-        employee.setUpdateTime(LocalDateTime.now());
-        //设置当前记录创建人id和修改人id
-        employee.setCreateUser(BaseContext.getCurrentId());
-        employee.setUpdateUser(BaseContext.getCurrentId());
 
         employeeMapper.addEmp(employee);
     }
@@ -150,9 +142,6 @@ public class EmployeeServiceImpl implements EmployeeService {
     public void updateEmp(EmployeeDTO employeeDTO) {
         EmployeeEntity employee = new EmployeeEntity();
         BeanUtils.copyProperties(employeeDTO,employee);
-        employee.setUpdateTime(LocalDateTime.now());
-        // 从ThreadLocal中获取当前登录用户的id
-        employee.setUpdateUser(BaseContext.getCurrentId());
         employeeMapper.updateEmp(employee);
     }
 }
