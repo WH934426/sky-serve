@@ -1,8 +1,9 @@
 server:
   port: 9527
 
-
 spring:
+  profiles:
+    active: dev
   application:
     name: sky-take-out
   datasource:
@@ -35,3 +36,8 @@ sky:
     admin-secret-key: ${sky.jwt.admin-secret-key}
     admin-ttl: ${sky.jwt.admin-ttl}
     admin-token-name: ${sky.jwt.admin-token-name}
+  alioss:
+    endpoint: ${sky.alioss.endpoint}
+    access-key-id: ${sky.alioss.access-key-id}
+    access-key-secret: ${sky.alioss.access-key-secret}
+    bucket-name: ${sky.alioss.bucket-name}
