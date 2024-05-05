@@ -6,10 +6,10 @@ spring:
   application:
     name: sky-take-out
   datasource:
-    username: root
-    password: 1234
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/sky_take_out
+    username: ${sky.datasource.username}
+    password: ${sky.datasource.password}
+    driver-class-name: ${sky.datasource.driver-class-name}
+    url: ${sky.datasource.url}
   main:
     banner-mode: off
 
@@ -32,9 +32,6 @@ logging:
 # 项目自定义配置
 sky:
   jwt:
-    # 设置jwt签名加密时使用的秘钥
-    admin-secret-key: wei
-    # 设置jwt过期时间
-    admin-ttl: 7200000
-    # 设置前端传递过来的令牌名称
-    admin-token-name: token
+    admin-secret-key: ${sky.jwt.admin-secret-key}
+    admin-ttl: ${sky.jwt.admin-ttl}
+    admin-token-name: ${sky.jwt.admin-token-name}

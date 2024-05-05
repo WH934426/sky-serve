@@ -36,3 +36,4 @@ build/
 
 ### Mac OS ###
 .DS_Store
+sky-server/src/main/resources/application-dev.yml
