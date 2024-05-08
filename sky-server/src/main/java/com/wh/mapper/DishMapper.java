@@ -6,7 +6,9 @@ import com.wh.dto.DishPageQueryDTO;
 import com.wh.entity.DishEntity;
 import com.wh.enumeration.OperationType;
 import com.wh.vo.DishVO;
+import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Select;
 
 /**
  * 菜品接口
@@ -28,4 +30,21 @@ public interface DishMapper {
      * @return 分页后的菜品列表
      */
     Page<DishVO> queryDishByPage(DishPageQueryDTO dishPageQueryDTO);
+
+    /**
+     * 根据id查询菜品
+     *
+     * @param id 菜品id
+     * @return 菜品信息
+     */
+    @Select("select * from dish where id = #{id}")
+    DishEntity getDishById(Long id);
+
+    /**
+     * 根据id删除菜品
+     *
+     * @param id 菜品id
+     */
+    @Delete("delete from dish where id = #{id}")
+    void  delDishById(Long id);
 }

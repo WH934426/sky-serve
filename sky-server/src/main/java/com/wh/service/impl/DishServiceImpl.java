@@ -2,10 +2,13 @@ package com.wh.service.impl;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import com.wh.constant.MessageConstant;
+import com.wh.constant.StatusConstant;
 import com.wh.dto.DishDTO;
 import com.wh.dto.DishPageQueryDTO;
 import com.wh.entity.DishEntity;
 import com.wh.entity.DishFlavorEntity;
+import com.wh.exception.DeletionNotAllowedException;
 import com.wh.mapper.DishFlavorMapper;
 import com.wh.mapper.DishMapper;
 import com.wh.result.PageResult;
@@ -17,6 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @Slf4j
@@ -71,5 +75,33 @@ public class DishServiceImpl implements DishService {
         Page<DishVO> page = dishMapper.queryDishByPage(dishPageQueryDTO);
         // 构造并返回分页结果对象，包含总记录数和当前页的查询结果
         return new PageResult<>(page.getTotal(),page.getResult());
+    }
+
+
+    /**
+     * 批量删除菜品
+     *
+     * @param ids 菜品id
+     */
+    @Transactional
+    @Override
+    public void delDishBatch(List<Long> ids) {
+        //判断当前菜品是否能够删除---是否存在起售中的菜品
+        for (Long id : ids) {
+            DishEntity dishById = dishMapper.getDishById(id);
+            if (Objects.equals(dishById.getStatus(), StatusConstant.ENABLE)) {
+                throw new DeletionNotAllowedException(MessageConstant.DISH_ON_SALE);
+            }
+        }
+
+        // TODO 判断当前菜品是否能够删除---是否被套餐关联了
+
+
+        for (Long id : ids) {
+            // 删除菜品表中的菜品数据
+            dishMapper.delDishById(id);
+            // 删除菜品口味表中的口味数据
+            dishFlavorMapper.delFavorByDishId(id);
+        }
     }
 }

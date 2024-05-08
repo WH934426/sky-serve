@@ -5,6 +5,8 @@ import com.wh.dto.DishPageQueryDTO;
 import com.wh.result.PageResult;
 import com.wh.vo.DishVO;
 
+import java.util.List;
+
 /**
  * 菜品接口
  */
@@ -24,4 +26,11 @@ public interface DishService {
      * @return PageResult<DishVO> 分页结果对象，包含了总记录数和当前页的菜品结果集。
      */
     PageResult<DishVO> queryDishByPage(DishPageQueryDTO dishPageQueryDTO);
+
+    /**
+     * 批量删除菜品
+     *
+     * @param ids 菜品id
+     */
+    void delDishBatch(List<Long> ids);
 }

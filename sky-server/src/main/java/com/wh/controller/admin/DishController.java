@@ -10,6 +10,8 @@ import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 /**
  * 菜品相关方法
  */
@@ -45,5 +47,18 @@ public class DishController {
         log.info("菜品分页查询:{}", dishPageQueryDTO);
         PageResult<DishVO> pageResult = dishService.queryDishByPage(dishPageQueryDTO);
         return Result.success(pageResult);
+    }
+
+    /**
+     * 批量删除菜品
+     *
+     * @param ids 菜品id
+     * @return 提示信息
+     */
+    @DeleteMapping
+    public Result<String> delDishBatch(@RequestBody List<Long> ids) {
+        log.info("批量删除菜品:{}", ids);
+        dishService.delDishBatch(ids);
+        return Result.success();
     }
 }
