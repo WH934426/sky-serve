@@ -4,4 +4,10 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.wh.mapper.DishMapper">
 
+    <insert id="addDish" useGeneratedKeys="true" keyProperty="id">
+        insert into dish(name, price, category_id, description, image, create_user, update_user, create_time,
+                         update_time, status)
+        values (#{name}, #{price}, #{categoryId}, #{description}, #{image}, #{createUser}, #{updateUser}, #{createTime},
+                #{updateTime}, #{status})
+    </insert>
 </mapper>
