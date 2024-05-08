@@ -1,8 +1,11 @@
 package com.wh.mapper;
 
+import com.github.pagehelper.Page;
 import com.wh.annotation.AutoFill;
+import com.wh.dto.DishPageQueryDTO;
 import com.wh.entity.DishEntity;
 import com.wh.enumeration.OperationType;
+import com.wh.vo.DishVO;
 import org.apache.ibatis.annotations.Mapper;
 
 /**
@@ -17,4 +20,12 @@ public interface DishMapper {
      */
     @AutoFill(value = OperationType.INSERT)
     void addDish(DishEntity dish);
+
+    /**
+     * 菜品分页查询
+     *
+     * @param dishPageQueryDTO 菜品分页查询条件
+     * @return 分页后的菜品列表
+     */
+    Page<DishVO> queryDishByPage(DishPageQueryDTO dishPageQueryDTO);
 }

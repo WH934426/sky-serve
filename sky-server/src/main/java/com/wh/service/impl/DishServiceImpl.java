@@ -1,11 +1,16 @@
 package com.wh.service.impl;
 
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
 import com.wh.dto.DishDTO;
+import com.wh.dto.DishPageQueryDTO;
 import com.wh.entity.DishEntity;
 import com.wh.entity.DishFlavorEntity;
 import com.wh.mapper.DishFlavorMapper;
 import com.wh.mapper.DishMapper;
+import com.wh.result.PageResult;
 import com.wh.service.DishService;
+import com.wh.vo.DishVO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
@@ -50,5 +55,21 @@ public class DishServiceImpl implements DishService {
             // 向口味表中插入多条数据
             dishFlavorMapper.addDishFlavorByBatch(flavors);
         }
+    }
+
+    /**
+     * 根据条件查询菜品信息，并分页返回查询结果。
+     *
+     * @param dishPageQueryDTO 包含分页信息和查询条件的传输对象，其中包含了页码、页大小和可能的查询过滤条件。
+     * @return PageResult<DishVO> 分页结果对象，包含了总记录数和当前页的菜品结果集。
+     */
+    @Override
+    public PageResult<DishVO> queryDishByPage(DishPageQueryDTO dishPageQueryDTO) {
+        // 使用PageHelper进行分页初始化，根据传入的页码和页大小准备进行分页查询
+        PageHelper.startPage(dishPageQueryDTO.getPage(),dishPageQueryDTO.getPageSize());
+        // 调用dishMapper查询满足条件的菜品信息，返回分页后的结果
+        Page<DishVO> page = dishMapper.queryDishByPage(dishPageQueryDTO);
+        // 构造并返回分页结果对象，包含总记录数和当前页的查询结果
+        return new PageResult<>(page.getTotal(),page.getResult());
     }
 }

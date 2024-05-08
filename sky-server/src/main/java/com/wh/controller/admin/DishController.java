@@ -1,14 +1,14 @@
 package com.wh.controller.admin;
 
 import com.wh.dto.DishDTO;
+import com.wh.dto.DishPageQueryDTO;
+import com.wh.result.PageResult;
 import com.wh.result.Result;
 import com.wh.service.DishService;
+import com.wh.vo.DishVO;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * 菜品相关方法
@@ -32,5 +32,18 @@ public class DishController {
         log.info("新增菜品: {}", dishDTO);
         dishService.addDishWithFlavor(dishDTO);
         return Result.success();
+    }
+
+    /**
+     * 菜品分页查询
+     *
+     * @param dishPageQueryDTO 分页查询需要的dto
+     * @return 分页查询后的结果
+     */
+    @GetMapping("/page")
+    public Result<PageResult<DishVO>> queryDishByPage(DishPageQueryDTO dishPageQueryDTO) {
+        log.info("菜品分页查询:{}", dishPageQueryDTO);
+        PageResult<DishVO> pageResult = dishService.queryDishByPage(dishPageQueryDTO);
+        return Result.success(pageResult);
     }
 }
