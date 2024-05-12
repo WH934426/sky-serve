@@ -52,7 +52,7 @@ public interface SetmealMapper {
     /**
      * 根据id修改套餐
      *
-     * @param setmeal
+     * @param setmeal 套餐
      */
     @AutoFill(OperationType.UPDATE)
     void updateSetmealById(SetmealEntity setmeal);

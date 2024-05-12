@@ -6,9 +6,12 @@ import com.wh.constant.MessageConstant;
 import com.wh.constant.StatusConstant;
 import com.wh.dto.SetmealDTO;
 import com.wh.dto.SetmealPageQueryDTO;
+import com.wh.entity.DishEntity;
 import com.wh.entity.SetmealDishEntity;
 import com.wh.entity.SetmealEntity;
 import com.wh.exception.DeletionNotAllowedException;
+import com.wh.exception.SetmealEnableFailedException;
+import com.wh.mapper.DishMapper;
 import com.wh.mapper.SetmealDishMapper;
 import com.wh.mapper.SetmealMapper;
 import com.wh.result.PageResult;
@@ -28,10 +31,12 @@ public class SetmealServiceImpl implements SetmealService {
 
     private final SetmealMapper setmealMapper;
     private final SetmealDishMapper setmealDishMapper;
+    private final DishMapper dishMapper;
 
-    public SetmealServiceImpl(SetmealMapper setmealMapper, SetmealDishMapper setmealDishMapper) {
+    public SetmealServiceImpl(SetmealMapper setmealMapper, SetmealDishMapper setmealDishMapper, DishMapper dishMapper) {
         this.setmealMapper = setmealMapper;
         this.setmealDishMapper = setmealDishMapper;
+        this.dishMapper = dishMapper;
     }
 
     /**
@@ -108,7 +113,7 @@ public class SetmealServiceImpl implements SetmealService {
         SetmealEntity setmeal = setmealMapper.getSetmealById(id);
         List<SetmealDishEntity> setmealDishes = setmealDishMapper.getSetmealDishBySetmealId(id);
         SetmealVO setmealVO = new SetmealVO();
-        BeanUtils.copyProperties(setmeal,setmealVO);
+        BeanUtils.copyProperties(setmeal, setmealVO);
         setmealVO.setSetmealDishes(setmealDishes);
         return setmealVO;
     }
@@ -124,17 +129,43 @@ public class SetmealServiceImpl implements SetmealService {
         SetmealEntity setmeal = new SetmealEntity();
         BeanUtils.copyProperties(setmealDTO, setmeal);
         setmealMapper.updateSetmealById(setmeal);
-        //套餐id
+        // 套餐id
         Long setmealId = setmealDTO.getId();
 
-        //2、删除套餐和菜品的关联关系，操作setmeal_dish表，执行delete
+        // 2、删除套餐和菜品的关联关系，操作setmeal_dish表，执行delete
         setmealDishMapper.deleteSetmealDishBySetmealId(setmealId);
 
         List<SetmealDishEntity> setmealDishes = setmealDTO.getSetmealDishes();
         setmealDishes.forEach(setmealDish -> {
             setmealDish.setSetmealId(setmealId);
         });
-        //3、重新插入套餐和菜品的关联关系
+        // 3、重新插入套餐和菜品的关联关系
         setmealDishMapper.addSetmealDishByBatch(setmealDishes);
+    }
+
+    /**
+     * 启用警用套餐状态
+     *
+     * @param status 套餐状态
+     * @param id     套餐id
+     */
+    @Override
+    public void updateSetmealStatus(Integer status, Long id) {
+        if (status.equals(StatusConstant.DISABLE)) {
+            List<DishEntity> dishList = dishMapper.getDishBySetmealId(id);
+            if (dishList != null && !dishList.isEmpty()) {
+                dishList.forEach(dish -> {
+                    if (StatusConstant.ENABLE.equals(dish.getStatus())) {
+                        // 套餐状态为禁用，而菜品状态为启用，则抛出异常
+                        throw new SetmealEnableFailedException(MessageConstant.SETMEAL_ENABLE_FAILED);
+                    }
+                });
+            }
+        }
+        SetmealEntity setmeal = SetmealEntity.builder()
+                .id(id)
+                .status(status)
+                .build();
+        setmealMapper.updateSetmealById(setmeal);
     }
 }

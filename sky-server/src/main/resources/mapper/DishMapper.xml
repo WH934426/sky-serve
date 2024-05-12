@@ -42,4 +42,10 @@
         </where>
         order by create_time desc
     </select>
+    <select id="getDishBySetmealId" resultType="com.wh.entity.DishEntity">
+        select d.*
+        from dish d
+                 left join setmeal_dish sd on d.id = sd.dish_id
+        where sd.setmeal_id = #{setmealId}
+    </select>
 </mapper>
