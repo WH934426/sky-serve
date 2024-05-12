@@ -2,6 +2,7 @@ package com.wh.service;
 
 import com.wh.dto.DishDTO;
 import com.wh.dto.DishPageQueryDTO;
+import com.wh.entity.DishEntity;
 import com.wh.result.PageResult;
 import com.wh.vo.DishVO;
 
@@ -48,4 +49,12 @@ public interface DishService {
      * @param dishDTO 菜品dto
      */
     void updateDishWithFlavor(DishDTO dishDTO);
+
+    /**
+     * 根据分类id查询菜品
+     *
+     * @param categoryId 分类id
+     * @return 菜品列表
+     */
+    List<DishEntity> listByCategoryId(Long categoryId);
 }

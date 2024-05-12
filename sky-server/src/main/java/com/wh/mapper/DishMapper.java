@@ -10,6 +10,8 @@ import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 
+import java.util.List;
+
 /**
  * 菜品接口
  */
@@ -55,4 +57,12 @@ public interface DishMapper {
      */
     @AutoFill(value = OperationType.UPDATE)
     void updateDish(DishEntity dish);
+
+    /**
+     * 根据分类id查询菜品
+     *
+     * @param dish 菜品中存在的分类id
+     * @return 菜品列表
+     */
+    List<DishEntity> listByCategoryId(DishEntity dish);
 }

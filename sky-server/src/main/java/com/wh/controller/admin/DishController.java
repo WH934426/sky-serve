@@ -2,6 +2,7 @@ package com.wh.controller.admin;
 
 import com.wh.dto.DishDTO;
 import com.wh.dto.DishPageQueryDTO;
+import com.wh.entity.DishEntity;
 import com.wh.result.PageResult;
 import com.wh.result.Result;
 import com.wh.service.DishService;
@@ -86,5 +87,17 @@ public class DishController {
         log.info("修改菜品：{}", dishDTO);
         dishService.updateDishWithFlavor(dishDTO);
         return Result.success();
+    }
+
+    /**
+     * 根据分类id查询菜品
+     * @param categoryId 分类id
+     * @return 菜品列表数据
+     */
+    @GetMapping("/list")
+    public Result<List<DishEntity>> listByCategoryId(Long categoryId) {
+        log.info("根据分类id：{}查询到的菜品", categoryId);
+        List<DishEntity> list = dishService.listByCategoryId(categoryId);
+        return Result.success(list);
     }
 }
