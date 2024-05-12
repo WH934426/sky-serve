@@ -61,4 +61,28 @@ public class SetmealController {
         setmealService.deleteSetmealByBatch(ids);
         return Result.success();
     }
+
+    /**
+     * 根据id查询套餐，用于修改页面回显数据
+     *
+     * @param id 套餐id
+     * @return 提示信息
+     */
+    @GetMapping("/{id}")
+    public Result<SetmealVO> getById(@PathVariable Long id) {
+        SetmealVO setmealVO = setmealService.getSetmealDishById(id);
+        return Result.success(setmealVO);
+    }
+
+    /**
+     * 修改套餐
+     *
+     * @param setmealDTO 套餐dto
+     * @return 提示信息
+     */
+    @PutMapping
+    public Result<String> updateSetmeal(@RequestBody SetmealDTO setmealDTO) {
+        setmealService.updateSetmeal(setmealDTO);
+        return Result.success();
+    }
 }

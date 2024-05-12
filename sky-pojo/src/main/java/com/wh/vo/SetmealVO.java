@@ -1,5 +1,6 @@
 package com.wh.vo;
 
+import com.wh.entity.SetmealDishEntity;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -8,6 +9,8 @@ import lombok.NoArgsConstructor;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 @Builder
@@ -48,4 +51,8 @@ public class SetmealVO implements Serializable {
      * 分类名称
      */
     private String categoryName;
+    /**
+     * 套餐包含的菜品
+     */
+    private List<SetmealDishEntity> setmealDishes = new ArrayList<>();
 }
