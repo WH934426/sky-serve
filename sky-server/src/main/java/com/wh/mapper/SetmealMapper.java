@@ -6,7 +6,9 @@ import com.wh.dto.SetmealPageQueryDTO;
 import com.wh.entity.SetmealEntity;
 import com.wh.enumeration.OperationType;
 import com.wh.vo.SetmealVO;
+import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Select;
 
 /**
  * 套餐接口
@@ -16,6 +18,7 @@ public interface SetmealMapper {
 
     /**
      * 添加套餐
+     *
      * @param setmeal 套餐实体
      */
     @AutoFill(OperationType.INSERT)
@@ -28,4 +31,21 @@ public interface SetmealMapper {
      * @return 分页结果
      */
     Page<SetmealVO> querySetmealByPage(SetmealPageQueryDTO setmealPageQueryDTO);
+
+    /**
+     * 根据id查询套餐
+     *
+     * @param id id
+     * @return 套餐实体
+     */
+    @Select("select * from setmeal where id=#{id}")
+    SetmealEntity getSetmealById(Long id);
+
+    /**
+     * 根据id删除套餐
+     *
+     * @param id id
+     */
+    @Delete("delete from setmeal where id=#{id}")
+    void deleteSetmealById(Long id);
 }

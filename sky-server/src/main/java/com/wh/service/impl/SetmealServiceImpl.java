@@ -2,10 +2,13 @@ package com.wh.service.impl;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import com.wh.constant.MessageConstant;
+import com.wh.constant.StatusConstant;
 import com.wh.dto.SetmealDTO;
 import com.wh.dto.SetmealPageQueryDTO;
 import com.wh.entity.SetmealDishEntity;
 import com.wh.entity.SetmealEntity;
+import com.wh.exception.DeletionNotAllowedException;
 import com.wh.mapper.SetmealDishMapper;
 import com.wh.mapper.SetmealMapper;
 import com.wh.result.PageResult;
@@ -72,5 +75,25 @@ public class SetmealServiceImpl implements SetmealService {
         PageHelper.startPage(page, pageSize);
         Page<SetmealVO> pageResult = setmealMapper.querySetmealByPage(setmealPageQueryDTO);
         return new PageResult<>(pageResult.getTotal(), pageResult.getResult());
+    }
+
+    /**
+     * 批量删除套餐
+     *
+     * @param ids 套餐id集合
+     */
+    @Transactional
+    @Override
+    public void deleteSetmealByBatch(List<Long> ids) {
+        ids.forEach(id -> {
+            SetmealEntity setmeal = setmealMapper.getSetmealById(id);
+            if (StatusConstant.ENABLE.equals(setmeal.getStatus())) {
+                throw new DeletionNotAllowedException(MessageConstant.SETMEAL_ON_SALE);
+            }
+        });
+        ids.forEach(setmealId -> {
+            setmealMapper.deleteSetmealById(setmealId);
+            setmealDishMapper.deleteSetmealDishBySetmealId(setmealId);
+        });
     }
 }

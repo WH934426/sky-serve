@@ -5,6 +5,8 @@ import com.wh.dto.SetmealPageQueryDTO;
 import com.wh.result.PageResult;
 import com.wh.vo.SetmealVO;
 
+import java.util.List;
+
 /**
  * 套餐业务层
  */
@@ -23,4 +25,10 @@ public interface SetmealService {
      * @return 查询结果
      */
     PageResult<SetmealVO> querySetmealByPage(SetmealPageQueryDTO setmealPageQueryDTO);
+
+    /**
+     * 批量删除套餐
+     * @param ids 套餐id集合
+     */
+    void deleteSetmealByBatch(List<Long> ids);
 }
