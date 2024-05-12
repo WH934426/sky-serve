@@ -11,4 +11,8 @@
             (#{sdl.setmealId},#{sdl.dishId},#{sdl.name},#{sdl.price},#{sdl.copies})
         </foreach>
     </insert>
+    <select id="getSetmealIdsByDishIds" resultType="java.lang.Long">
+        select setmeal_id from setmeal_dish where dish_id in
+        <foreach collection="dishIds" item="dishId" open="(" separator="," close=")">#{dishId}</foreach>
+    </select>
 </mapper>

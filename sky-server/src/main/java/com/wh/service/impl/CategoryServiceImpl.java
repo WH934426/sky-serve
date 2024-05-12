@@ -71,7 +71,7 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public void delCateById(Long id) {
         log.info("需要删除的菜品id：{}", id);
-        // TODO 需要判断该分类是否被菜品/套餐关联，如果关联则不能删除
+        // 需要判断该分类是否被菜品/套餐关联，如果关联则不能删除
         Integer count = dishMapper.countByCategoryId(id);
         if (count > 0) {
             throw new DeletionNotAllowedException(MessageConstant.CATEGORY_BE_RELATED_BY_DISH);

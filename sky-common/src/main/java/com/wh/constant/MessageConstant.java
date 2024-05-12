@@ -15,4 +15,5 @@ public class MessageConstant {
     public static final String SETMEAL_ENABLE_FAILED = "套餐内包含未启售菜品，无法启售";
     public static final String CATEGORY_BE_RELATED_BY_SETMEAL = "当前分类关联了套餐,不能删除";
     public static final String CATEGORY_BE_RELATED_BY_DISH = "当前分类关联了菜品,不能删除";
+    public static final String DISH_BE_RELATED_BY_SETMEAL = "当前菜品关联了套餐,不能删除";
 }
