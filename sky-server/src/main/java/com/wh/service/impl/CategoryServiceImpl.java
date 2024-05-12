@@ -2,11 +2,15 @@ package com.wh.service.impl;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import com.wh.constant.MessageConstant;
 import com.wh.constant.StatusConstant;
 import com.wh.dto.CategoryDTO;
 import com.wh.dto.CategoryPageQueryDTO;
 import com.wh.entity.CategoryEntity;
+import com.wh.exception.DeletionNotAllowedException;
 import com.wh.mapper.CategoryMapper;
+import com.wh.mapper.DishMapper;
+import com.wh.mapper.SetmealMapper;
 import com.wh.result.PageResult;
 import com.wh.service.CategoryService;
 import lombok.extern.slf4j.Slf4j;
@@ -19,11 +23,14 @@ import java.util.List;
 @Slf4j
 public class CategoryServiceImpl implements CategoryService {
 
-    // TODO 需要多个Mapper，因此需要使用构造器注入
     private final CategoryMapper categoryMapper;
+    private final DishMapper dishMapper;
+    private final SetmealMapper setmealMapper;
 
-    public CategoryServiceImpl(CategoryMapper categoryMapper) {
+    public CategoryServiceImpl(CategoryMapper categoryMapper, DishMapper dishMapper, SetmealMapper setmealMapper) {
         this.categoryMapper = categoryMapper;
+        this.dishMapper = dishMapper;
+        this.setmealMapper = setmealMapper;
     }
 
     /**
@@ -65,6 +72,14 @@ public class CategoryServiceImpl implements CategoryService {
     public void delCateById(Long id) {
         log.info("需要删除的菜品id：{}", id);
         // TODO 需要判断该分类是否被菜品/套餐关联，如果关联则不能删除
+        Integer count = dishMapper.countByCategoryId(id);
+        if (count > 0) {
+            throw new DeletionNotAllowedException(MessageConstant.CATEGORY_BE_RELATED_BY_DISH);
+        }
+        count = setmealMapper.countByCategoryId(id);
+        if (count > 0) {
+            throw new DeletionNotAllowedException(MessageConstant.CATEGORY_BE_RELATED_BY_SETMEAL);
+        }
         categoryMapper.delCateById(id);
     }
 

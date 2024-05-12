@@ -56,4 +56,12 @@ public interface SetmealMapper {
      */
     @AutoFill(OperationType.UPDATE)
     void updateSetmealById(SetmealEntity setmeal);
+
+    /**
+     * 根据分类id查询套餐数量
+     * @param categoryId 分类id
+     * @return 套餐数量
+     */
+    @Select("select count(id) from setmeal where category_id = #{categoryId} ")
+    Integer countByCategoryId(Long categoryId);
 }
