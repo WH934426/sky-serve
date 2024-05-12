@@ -1,11 +1,16 @@
 package com.wh.service.impl;
 
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
 import com.wh.dto.SetmealDTO;
+import com.wh.dto.SetmealPageQueryDTO;
 import com.wh.entity.SetmealDishEntity;
 import com.wh.entity.SetmealEntity;
 import com.wh.mapper.SetmealDishMapper;
 import com.wh.mapper.SetmealMapper;
+import com.wh.result.PageResult;
 import com.wh.service.SetmealService;
+import com.wh.vo.SetmealVO;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -51,5 +56,21 @@ public class SetmealServiceImpl implements SetmealService {
 
         // 批量添加设置好套餐ID的菜品到数据库
         setmealDishMapper.addSetmealDishByBatch(setmealDishes);
+    }
+
+    /**
+     * 分页查询套餐
+     *
+     * @param setmealPageQueryDTO 分页查询条件
+     * @return 查询结果
+     */
+    @Override
+    public PageResult<SetmealVO> querySetmealByPage(SetmealPageQueryDTO setmealPageQueryDTO) {
+        int page = setmealPageQueryDTO.getPage();
+        int pageSize = setmealPageQueryDTO.getPageSize();
+
+        PageHelper.startPage(page, pageSize);
+        Page<SetmealVO> pageResult = setmealMapper.querySetmealByPage(setmealPageQueryDTO);
+        return new PageResult<>(pageResult.getTotal(), pageResult.getResult());
     }
 }

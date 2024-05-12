@@ -1,14 +1,14 @@
 package com.wh.controller.admin;
 
 import com.wh.dto.SetmealDTO;
+import com.wh.dto.SetmealPageQueryDTO;
+import com.wh.result.PageResult;
 import com.wh.result.Result;
 import com.wh.service.SetmealService;
+import com.wh.vo.SetmealVO;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * 套餐请求路径
@@ -32,5 +32,18 @@ public class SetmealController {
         log.info("套餐添加请求:{}", setmealDTO);
         setmealService.addSetmealWithDish(setmealDTO);
         return Result.success();
+    }
+
+    /**
+     * 分页查询
+     *
+     * @param setmealPageQueryDTO 分页查询dto
+     * @return 查询后的数据
+     */
+    @GetMapping("/page")
+    public Result<PageResult<SetmealVO>> page(SetmealPageQueryDTO setmealPageQueryDTO) {
+        log.info("套餐分页查询请求:{}", setmealPageQueryDTO);
+        PageResult<SetmealVO> pageResult = setmealService.querySetmealByPage(setmealPageQueryDTO);
+        return Result.success(pageResult);
     }
 }

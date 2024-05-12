@@ -1,6 +1,9 @@
 package com.wh.service;
 
 import com.wh.dto.SetmealDTO;
+import com.wh.dto.SetmealPageQueryDTO;
+import com.wh.result.PageResult;
+import com.wh.vo.SetmealVO;
 
 /**
  * 套餐业务层
@@ -12,4 +15,12 @@ public interface SetmealService {
      * @param setmealDTO 套餐数据
      */
     void addSetmealWithDish(SetmealDTO setmealDTO);
+
+    /**
+     * 分页查询套餐
+     *
+     * @param setmealPageQueryDTO 分页查询条件
+     * @return 查询结果
+     */
+    PageResult<SetmealVO> querySetmealByPage(SetmealPageQueryDTO setmealPageQueryDTO);
 }
