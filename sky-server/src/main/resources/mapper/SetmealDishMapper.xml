@@ -4,4 +4,11 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.wh.mapper.SetmealDishMapper">
 
+    <insert id="addSetmealDishByBatch" parameterType="list">
+        insert into setmeal_dish(setmeal_id,dish_id,name,price,copies)
+        values 
+            <foreach collection="setmealDishList" item="sdl" separator=",">
+                (#{sdl.setmealId},#{sdl.dishId},#{sdl.name},#{sdl.price},#{sdl.copies})
+            </foreach>
+    </insert>
 </mapper>

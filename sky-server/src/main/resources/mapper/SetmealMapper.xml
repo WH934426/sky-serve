@@ -4,4 +4,10 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.wh.mapper.SetmealMapper">
 
+    <insert id="addSetmeal" keyProperty="id" useGeneratedKeys="true" parameterType="setmealEntity">
+        insert into setmeal
+        (name, price, status, category_id, description, image, create_user, update_user, create_time, update_time)
+        values (#{name}, #{price}, #{status}, #{categoryId}, #{description}, #{image}, #{createUser}, #{updateUser},
+                #{createTime}, #{updateTime})
+    </insert>
 </mapper>
