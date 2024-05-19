@@ -13,6 +13,12 @@ spring:
     url: ${sky.datasource.url}
   main:
     banner-mode: off
+  data:
+    redis:
+      port: ${sky.redis.port}
+      host: ${sky.redis.host}
+      password: ${sky.redis.password}
+      database: ${sky.redis.database}
 
 
 mybatis:
