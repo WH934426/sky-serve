@@ -1,6 +1,7 @@
 package com.wh.config;
 
 import com.wh.interceptor.JwtTokenAdminInterceptor;
+import com.wh.interceptor.JwtTokenUserInterceptor;
 import com.wh.json.JacksonObjectMapper;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
@@ -20,6 +21,8 @@ import java.util.List;
 public class WebMvcConfiguration extends WebMvcConfigurationSupport {
     @Resource
     private JwtTokenAdminInterceptor jwtTokenAdminInterceptor;
+    @Resource
+    private JwtTokenUserInterceptor jwtTokenUserInterceptor;
 
     /**
      * 注册拦截器
@@ -32,12 +35,16 @@ public class WebMvcConfiguration extends WebMvcConfigurationSupport {
         registry.addInterceptor(jwtTokenAdminInterceptor)
                 .addPathPatterns("/admin/**")
                 .excludePathPatterns("/admin/employee/login");
+        registry.addInterceptor(jwtTokenUserInterceptor)
+                .addPathPatterns("/user/**")
+                .excludePathPatterns("/user/user/login")
+                .excludePathPatterns("/user/shop/status");
     }
 
     /**
-     * 扩展Spring MVC框架的消息转化器
+     * 扩展Spring MVC的消息转换器，用于自定义JSON序列化和反序列化的行为。
      *
-     * @param converters
+     * @param converters Spring MVC中可用的消息转换器列表。
      */
     @Override
     protected void extendMessageConverters(List<HttpMessageConverter<?>> converters) {
