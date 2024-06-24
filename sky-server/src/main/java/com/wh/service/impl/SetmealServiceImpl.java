@@ -16,6 +16,7 @@ import com.wh.mapper.SetmealDishMapper;
 import com.wh.mapper.SetmealMapper;
 import com.wh.result.PageResult;
 import com.wh.service.SetmealService;
+import com.wh.vo.DishItemVO;
 import com.wh.vo.SetmealVO;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
@@ -58,9 +59,7 @@ public class SetmealServiceImpl implements SetmealService {
 
         // 获取套餐DTO中的菜品列表，并为每个菜品设置套餐ID
         List<SetmealDishEntity> setmealDishes = setmealDTO.getSetmealDishes();
-        setmealDishes.forEach(setmealDish -> {
-            setmealDish.setSetmealId(setmealId);
-        });
+        setmealDishes.forEach(setmealDish -> setmealDish.setSetmealId(setmealId));
 
         // 批量添加设置好套餐ID的菜品到数据库
         setmealDishMapper.addSetmealDishByBatch(setmealDishes);
@@ -136,9 +135,7 @@ public class SetmealServiceImpl implements SetmealService {
         setmealDishMapper.deleteSetmealDishBySetmealId(setmealId);
 
         List<SetmealDishEntity> setmealDishes = setmealDTO.getSetmealDishes();
-        setmealDishes.forEach(setmealDish -> {
-            setmealDish.setSetmealId(setmealId);
-        });
+        setmealDishes.forEach(setmealDish -> setmealDish.setSetmealId(setmealId));
         // 3、重新插入套餐和菜品的关联关系
         setmealDishMapper.addSetmealDishByBatch(setmealDishes);
     }
@@ -167,5 +164,27 @@ public class SetmealServiceImpl implements SetmealService {
                 .status(status)
                 .build();
         setmealMapper.updateSetmealById(setmeal);
+    }
+
+    /**
+     * 根据条件查询套餐
+     *
+     * @param setmeal 套餐条件
+     * @return 套餐列表数据
+     */
+    @Override
+    public List<SetmealEntity> getSetmealList(SetmealEntity setmeal) {
+        return setmealMapper.getSetmealList(setmeal);
+    }
+
+    /**
+     * 根据套餐id查询菜品数据
+     *
+     * @param setmealId 套餐id
+     * @return 菜品列表数据
+     */
+    @Override
+    public List<DishItemVO> getDishItemBySetmealId(Long setmealId) {
+        return setmealMapper.getDishItemBySetmealId(setmealId);
     }
 }
