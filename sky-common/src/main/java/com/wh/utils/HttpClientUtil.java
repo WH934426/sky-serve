@@ -94,11 +94,10 @@ public class HttpClientUtil {
     }
 
 
-
     /**
      * 使用POST方法向指定URL发送请求，并返回服务器的响应内容。
      *
-     * @param url 请求的URL地址。
+     * @param url      请求的URL地址。
      * @param paramMap 请求参数的映射表，键值对形式。
      * @return 服务器返回的响应内容，以字符串形式。
      * @throws IOException 如果发生I/O错误。
@@ -108,7 +107,7 @@ public class HttpClientUtil {
         // 创建Httpclient对象
         CloseableHttpClient httpClient = HttpClients.createDefault();
         CloseableHttpResponse response = null;
-        String resultString = "";
+        String resultString;
 
         try {
             // 创建HttpPost请求对象
@@ -118,7 +117,7 @@ public class HttpClientUtil {
             // 如果有参数，转换为NameValuePair列表，并设置到请求对象中
             // 创建参数列表
             if (paramMap != null) {
-                List<NameValuePair> paramList = new ArrayList();
+                List<NameValuePair> paramList = new ArrayList<>();
                 for (Map.Entry<String, String> param : paramMap.entrySet()) {
                     paramList.add(new BasicNameValuePair(param.getKey(), param.getValue()));
                 }
@@ -137,9 +136,6 @@ public class HttpClientUtil {
 
             // 读取并返回响应内容
             resultString = EntityUtils.toString(response.getEntity(), "UTF-8");
-        } catch (Exception e) {
-            // 抛出异常，便于上层处理
-            throw e;
         } finally {
             // 关闭响应对象，释放资源
             try {
@@ -147,7 +143,7 @@ public class HttpClientUtil {
                     response.close();
                 }
             } catch (IOException e) {
-                e.printStackTrace();
+                log.error("请求异常", e);
             }
         }
 
@@ -155,11 +151,10 @@ public class HttpClientUtil {
     }
 
 
-
     /**
      * 使用POST方法向指定URL发送带JSON参数的HTTP请求，并返回响应的字符串内容。
      *
-     * @param url 请求的URL地址。
+     * @param url      请求的URL地址。
      * @param paramMap 请求的参数，以键值对形式存储，将被转换为JSON格式作为请求体。
      * @return 返回HTTP响应的字符串内容。
      * @throws IOException 如果发生I/O错误。
@@ -169,7 +164,7 @@ public class HttpClientUtil {
         // 创建Httpclient对象
         CloseableHttpClient httpClient = HttpClients.createDefault();
         CloseableHttpResponse response = null;
-        String resultString = "";
+        String resultString;
 
         try {
             // 创建HttpPost请求对象
@@ -179,17 +174,7 @@ public class HttpClientUtil {
             // 如果参数不为空，构建JSON对象并设置为请求体
             if (paramMap != null) {
                 // 构造json格式数据
-                JSONObject jsonObject = new JSONObject();
-                for (Map.Entry<String, String> param : paramMap.entrySet()) {
-                    jsonObject.put(param.getKey(), param.getValue());
-                }
-                // 设置请求体为构建的JSON字符串，编码为UTF-8
-                StringEntity entity = new StringEntity(jsonObject.toString(), "utf-8");
-                // 明确设置请求体的编码和类型
-                // 设置请求编码
-                entity.setContentEncoding("utf-8");
-                // 设置数据类型
-                entity.setContentType("application/json");
+                StringEntity entity = getStringEntity(paramMap);
                 httpPost.setEntity(entity);
             }
 
@@ -202,9 +187,6 @@ public class HttpClientUtil {
 
             // 从响应对象中获取响应内容，并以UTF-8解码
             resultString = EntityUtils.toString(response.getEntity(), "UTF-8");
-        } catch (Exception e) {
-            // 抛出异常，便于上层处理
-            throw e;
         } finally {
             // 关闭响应对象，释放资源
             try {
@@ -212,7 +194,7 @@ public class HttpClientUtil {
                     response.close();
                 }
             } catch (IOException e) {
-                e.printStackTrace();
+                log.error("请求异常", e);
             }
         }
 
@@ -220,10 +202,28 @@ public class HttpClientUtil {
         return resultString;
     }
 
+    /**
+     * 构建请求体，将参数转换为JSON格式。
+     *
+     * @param paramMap 参数
+     * @return StringEntity 对象，包含转换后的JSON字符串及
+     */
+    private static StringEntity getStringEntity(Map<String, String> paramMap) {
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.putAll(paramMap);
+        // 设置请求体为构建的JSON字符串，编码为UTF-8
+        StringEntity entity = new StringEntity(jsonObject.toString(), "utf-8");
+        // 明确设置请求体的编码和类型
+        // 设置请求编码
+        entity.setContentEncoding("utf-8");
+        // 设置数据类型
+        entity.setContentType("application/json");
+        return entity;
+    }
+
 
     /**
      * 构建请求配置对象。
-     *
      * 此方法用于配置HTTP请求的各种超时时间。这些配置决定了客户端在等待服务器响应时的耐心程度。
      * 设置合理的超时时间可以避免应用程序在等待无效请求时无限期地阻塞。
      *
@@ -241,7 +241,5 @@ public class HttpClientUtil {
                 // 构建并返回配置完毕的请求配置对象
                 .build();
     }
-
-
 }
 
