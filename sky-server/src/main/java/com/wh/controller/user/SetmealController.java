@@ -6,6 +6,7 @@ import com.wh.result.Result;
 import com.wh.service.SetmealService;
 import com.wh.vo.DishItemVO;
 import jakarta.annotation.Resource;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -30,6 +31,7 @@ public class SetmealController {
      * @return 套餐列表
      */
     @GetMapping("/list")
+    @Cacheable(cacheNames = "setmealCache", key = "#categoryId")
     public Result<List<SetmealEntity>> getSetmealByCategoryId(Integer categoryId) {
         SetmealEntity setmeal = new SetmealEntity();
         setmeal.setCategoryId(categoryId);

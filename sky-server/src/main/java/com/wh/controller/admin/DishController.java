@@ -9,9 +9,11 @@ import com.wh.service.DishService;
 import com.wh.vo.DishVO;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * 菜品相关方法
@@ -23,6 +25,8 @@ public class DishController {
 
     @Resource
     private DishService dishService;
+    @Resource
+    private RedisTemplate<String, Object> redisTemplate;
 
     /**
      * 新增菜品
@@ -34,6 +38,9 @@ public class DishController {
     public Result<String> addDish(@RequestBody DishDTO dishDTO) {
         log.info("新增菜品: {}", dishDTO);
         dishService.addDishWithFlavor(dishDTO);
+        // 构造键值对并清理
+        String key = "dish:" + dishDTO.getCategoryId();
+        cleanCache(key);
         return Result.success();
     }
 
@@ -60,6 +67,8 @@ public class DishController {
     public Result<String> delDishBatch(@RequestBody List<Long> ids) {
         log.info("批量删除菜品:{}", ids);
         dishService.delDishBatch(ids);
+        // 删除所有以 dish_开头的键值对
+        cleanCache("dish_*");
         return Result.success();
     }
 
@@ -86,11 +95,15 @@ public class DishController {
     public Result<DishDTO> update(@RequestBody DishDTO dishDTO) {
         log.info("修改菜品：{}", dishDTO);
         dishService.updateDishWithFlavor(dishDTO);
+        cleanCache("dish_*");
         return Result.success();
     }
 
+    // TODO： 菜品的起售停售
+
     /**
      * 根据分类id查询菜品
+     *
      * @param categoryId 分类id
      * @return 菜品列表数据
      */
@@ -99,5 +112,20 @@ public class DishController {
         log.info("根据分类id：{}查询到的菜品", categoryId);
         List<DishEntity> list = dishService.listByCategoryId(categoryId);
         return Result.success(list);
+    }
+
+    /**
+     * 清理缓存数据
+     *
+     * @param pattern 缓存键的模式匹配表达式，用于匹配需要清除的缓存键。
+     */
+    private void cleanCache(String pattern) {
+        // 使用给定的模式从Redis中查找所有匹配的键
+        Set<String> keys = redisTemplate.keys(pattern);
+        // 检查找到的键集合是否非空
+        if (keys != null && !keys.isEmpty()) {
+            // 删除所有匹配的缓存键
+            redisTemplate.delete(keys);
+        }
     }
 }

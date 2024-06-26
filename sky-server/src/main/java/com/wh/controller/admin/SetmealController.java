@@ -8,6 +8,7 @@ import com.wh.service.SetmealService;
 import com.wh.vo.SetmealVO;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -30,6 +31,7 @@ public class SetmealController {
      * @return 提示信息
      */
     @PostMapping
+    @CacheEvict(cacheNames = "setmealCache", key = "#setmealDTO.categoryId")
     public Result<String> addSetmeal(@RequestBody SetmealDTO setmealDTO) {
         log.info("套餐添加请求:{}", setmealDTO);
         setmealService.addSetmealWithDish(setmealDTO);
@@ -56,6 +58,7 @@ public class SetmealController {
      * @return 提示信息
      */
     @DeleteMapping
+    @CacheEvict(cacheNames = "setmealCache", allEntries = true)
     public Result<String> deleteSetmealByBatch(@RequestParam List<Long> ids) {
         log.info("套餐批量删除请求:{}", ids);
         setmealService.deleteSetmealByBatch(ids);
@@ -81,6 +84,7 @@ public class SetmealController {
      * @return 提示信息
      */
     @PutMapping
+    @CacheEvict(cacheNames = "setmealCache", allEntries = true)
     public Result<String> updateSetmeal(@RequestBody SetmealDTO setmealDTO) {
         setmealService.updateSetmeal(setmealDTO);
         return Result.success();
@@ -88,11 +92,13 @@ public class SetmealController {
 
     /**
      * 套餐起售停售
+     *
      * @param status 套餐的状态
-     * @param id 套餐id
+     * @param id     套餐id
      * @return 提示信息
      */
     @PostMapping("/status/{status}")
+    @CacheEvict(cacheNames = "setmealCache", allEntries = true)
     public Result<String> updateSetmealStatus(@PathVariable Integer status, Long id) {
         setmealService.updateSetmealStatus(status, id);
         return Result.success();
