@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 /**
@@ -36,7 +37,7 @@ public class SetmealEntity implements Serializable {
     /**
      * 套餐价格
      */
-    private String price;
+    private BigDecimal price;
     /**
      * 套餐状态 0:停用 1:启用
      */
