@@ -1,6 +1,7 @@
 package com.wh.mapper;
 
 import com.wh.entity.ShoppingCartEntity;
+import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Update;
 
@@ -34,4 +35,12 @@ public interface ShoppingCartMapper {
      * @param shoppingCart 购物车数据
      */
     void addShoppingCart(ShoppingCartEntity shoppingCart);
+
+    /**
+     * 根据用户id删除购物车数据
+     *
+     * @param userId 用户id
+     */
+    @Delete("delete from shopping_cart where user_id = #{userId}")
+    void deleteShoppingCartByUserId(Long userId);
 }

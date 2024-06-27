@@ -6,10 +6,7 @@ import com.wh.result.Result;
 import com.wh.service.ShoppingCartService;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -46,5 +43,16 @@ public class ShoppingCartController {
     public Result<List<ShoppingCartEntity>> showShoppingCart() {
         List<ShoppingCartEntity> shoppingCartList = shoppingCartService.showShoppingCart();
         return Result.success(shoppingCartList);
+    }
+
+    /**
+     * 清空购物车
+     *
+     * @return 提示信息
+     */
+    @DeleteMapping("/clean")
+    public Result<String> cleanShoppingCart() {
+        shoppingCartService.cleanShoppingCart();
+        return Result.success();
     }
 }
