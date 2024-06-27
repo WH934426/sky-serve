@@ -99,7 +99,20 @@ public class DishController {
         return Result.success();
     }
 
-    // TODO： 菜品的起售停售
+    /**
+     * 菜品的起售停售
+     *
+     * @param status 菜品状态：1为起售，0为停售
+     * @param id     菜品id
+     * @return 提示信息
+     */
+    @PostMapping("/status/{status}")
+    public Result<String> updateDishStatus(@PathVariable Integer status, Long id) {
+        dishService.updateSetmealStatus(status, id);
+        // 删除所有以 dish_开头的键值对
+        cleanCache("dish_*");
+        return Result.success();
+    }
 
     /**
      * 根据分类id查询菜品

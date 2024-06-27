@@ -8,10 +8,12 @@ import com.wh.dto.DishDTO;
 import com.wh.dto.DishPageQueryDTO;
 import com.wh.entity.DishEntity;
 import com.wh.entity.DishFlavorEntity;
+import com.wh.entity.SetmealEntity;
 import com.wh.exception.DeletionNotAllowedException;
 import com.wh.mapper.DishFlavorMapper;
 import com.wh.mapper.DishMapper;
 import com.wh.mapper.SetmealDishMapper;
+import com.wh.mapper.SetmealMapper;
 import com.wh.result.PageResult;
 import com.wh.service.DishService;
 import com.wh.vo.DishVO;
@@ -31,11 +33,13 @@ public class DishServiceImpl implements DishService {
     private final DishMapper dishMapper;
     private final DishFlavorMapper dishFlavorMapper;
     private final SetmealDishMapper setmealDishMapper;
+    private final SetmealMapper setmealMapper;
 
-    public DishServiceImpl(DishMapper dishMapper, DishFlavorMapper dishFlavorMapper, SetmealDishMapper setmealDishMapper) {
+    public DishServiceImpl(DishMapper dishMapper, DishFlavorMapper dishFlavorMapper, SetmealDishMapper setmealDishMapper, SetmealMapper setmealMapper) {
         this.dishMapper = dishMapper;
         this.dishFlavorMapper = dishFlavorMapper;
         this.setmealDishMapper = setmealDishMapper;
+        this.setmealMapper = setmealMapper;
     }
 
     /**
@@ -157,6 +161,41 @@ public class DishServiceImpl implements DishService {
             flavors.forEach(dishFlavor -> dishFlavor.setDishId(dishDTO.getId()));
             // 向口味表插入n条数据
             dishFlavorMapper.addDishFlavorByBatch(flavors);
+        }
+    }
+
+    /**
+     * 菜品的起售停售
+     *
+     * @param status 菜品状态：1为起售，0为停售
+     * @param id     菜品id
+     */
+    @Transactional
+    @Override
+    public void updateSetmealStatus(Integer status, Long id) {
+        // 构建菜品实体对象，仅设置id和status，用于更新操作
+        DishEntity dish = DishEntity.builder().id(id).status(status).build();
+        // 调用Mapper层方法，根据dish对象更新数据库中的菜品状态
+        dishMapper.updateDish(dish);
+
+        // 判断是否为停售操作
+        if (Objects.equals(status, StatusConstant.DISABLE)) {
+            // 准备一个包含当前菜品id的列表，用于查询关联套餐
+            List<Long> dishIds = new ArrayList<>();
+            dishIds.add(id);
+
+            // 查询所有包含这些菜品id的套餐id列表
+            List<Long> setmealIds = setmealDishMapper.getSetmealIdsByDishIds(dishIds);
+
+            // 如果找到了关联的套餐
+            if (setmealIds != null && !setmealIds.isEmpty()) {
+                // 遍历每个关联的套餐id
+                for (Long setmealId : setmealIds) {
+                    // 构建套餐实体对象，设置其状态为停售，并使用套餐id进行更新操作
+                    SetmealEntity setmeal = SetmealEntity.builder().id(setmealId).status(StatusConstant.DISABLE).build();
+                    setmealMapper.updateSetmealById(setmeal);
+                }
+            }
         }
     }
 
