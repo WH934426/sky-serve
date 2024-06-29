@@ -2,10 +2,13 @@ package com.wh.controller.user;
 
 import com.wh.context.BaseContext;
 import com.wh.entity.AddressBookEntity;
+import com.wh.mapper.AddressBookMapper;
 import com.wh.result.Result;
 import com.wh.service.AddressBookService;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -17,6 +20,8 @@ public class AddressBookController {
 
     @Resource
     private AddressBookService addressBookService;
+    @Autowired
+    private AddressBookMapper addressBookMapper;
 
     /**
      * 查询当前登录用户的所有地址信息
@@ -94,5 +99,29 @@ public class AddressBookController {
         log.info("修改默认地址:{}", addressBook);
         addressBookService.setDefaultAddress(addressBook);
         return Result.success();
+    }
+
+    /**
+     * 查询当前用户的默认地址信息
+     *
+     * @return 若存在默认地址，则返回该地址实体的Result对象；否则返回错误信息的Result对象
+     */
+    @GetMapping("/default")
+    public Result<AddressBookEntity> getDefaultAddress() {
+        // 构建查询条件，默认地址标志为1
+        AddressBookEntity addressBook = new AddressBookEntity();
+        addressBook.setUserId(BaseContext.getCurrentId());
+        addressBook.setIsDefault(1);
+
+        // 执行查询
+        List<AddressBookEntity> defaultAddresses = addressBookMapper.queryAllAddressBook(addressBook);
+
+        // 如果查询结果不为空且只有一个，默认认为第一个即为默认地址
+        if (!CollectionUtils.isEmpty(defaultAddresses) && defaultAddresses.size() == 1) {
+            return Result.success(defaultAddresses.get(0));
+        }
+
+        // 未找到默认地址时的处理
+        return Result.error("未查询到默认地址信息");
     }
 }
