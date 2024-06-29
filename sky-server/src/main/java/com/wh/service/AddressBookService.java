@@ -38,4 +38,11 @@ public interface AddressBookService {
      * @param addressBook 要求改的地址信息
      */
     void updateAddressBookByUserId(AddressBookEntity addressBook);
+
+    /**
+     * 根据id删除地址
+     *
+     * @param id 地址id
+     */
+    void deleteAddressBookById(Long id);
 }

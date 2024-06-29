@@ -1,6 +1,7 @@
 package com.wh.mapper;
 
 import com.wh.entity.AddressBookEntity;
+import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 
@@ -42,4 +43,12 @@ public interface AddressBookMapper {
      * @param addressBook 要修改的地址信息
      */
     void updateAddressBookByUserId(AddressBookEntity addressBook);
+
+    /**
+     * 根据id删除地址
+     *
+     * @param id 地址id
+     */
+    @Delete("delete from address_book where id=#{id}")
+    void deleteAddressBookById(Long id);
 }

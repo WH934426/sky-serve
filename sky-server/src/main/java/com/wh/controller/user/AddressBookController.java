@@ -69,4 +69,17 @@ public class AddressBookController {
         addressBookService.updateAddressBookByUserId(addressBook);
         return Result.success();
     }
+
+    /**
+     * 根据id删除地址
+     *
+     * @param id 地址id
+     * @return 提示信息
+     */
+    @DeleteMapping
+    public Result<String> deleteAddressBookById(Long id) {
+        log.info("被删除地址信息的id:{}", id);
+        addressBookService.deleteAddressBookById(id);
+        return Result.success();
+    }
 }
