@@ -2,6 +2,7 @@ package com.wh.mapper;
 
 import com.wh.entity.AddressBookEntity;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Select;
 
 import java.util.List;
 
@@ -25,4 +26,20 @@ public interface AddressBookMapper {
      * @param addressBook 地址簿实体类
      */
     void addAddressBook(AddressBookEntity addressBook);
+
+    /**
+     * 根据 id查询地址
+     *
+     * @param id id
+     * @return 地址簿信息
+     */
+    @Select("select * from address_book where id = #{id}")
+    AddressBookEntity getAddressBookById(Long id);
+
+    /**
+     * 根据用户id修改地址
+     *
+     * @param addressBook 要修改的地址信息
+     */
+    void updateAddressBookByUserId(AddressBookEntity addressBook);
 }

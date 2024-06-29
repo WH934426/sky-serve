@@ -23,4 +23,19 @@ public interface AddressBookService {
      * @param addressBook 地址簿信息
      */
     void addAddressBook(AddressBookEntity addressBook);
+
+    /**
+     * 根据id查询地址
+     *
+     * @param id id
+     * @return 地址簿信息
+     */
+    AddressBookEntity getAddressBookById(Long id);
+
+    /**
+     * 根据id修改地址
+     *
+     * @param addressBook 要求改的地址信息
+     */
+    void updateAddressBookByUserId(AddressBookEntity addressBook);
 }

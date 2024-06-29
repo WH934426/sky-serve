@@ -40,4 +40,25 @@ public class AddressBookServiceImpl implements AddressBookService {
         addressBook.setIsDefault(0);
         addressBookMapper.addAddressBook(addressBook);
     }
+
+    /**
+     * 根据id查询地址
+     *
+     * @param id id
+     * @return 地址簿信息
+     */
+    @Override
+    public AddressBookEntity getAddressBookById(Long id) {
+        return addressBookMapper.getAddressBookById(id);
+    }
+
+    /**
+     * 根据id修改地址
+     *
+     * @param addressBook 要求改的地址信息
+     */
+    @Override
+    public void updateAddressBookByUserId(AddressBookEntity addressBook) {
+        addressBookMapper.updateAddressBookByUserId(addressBook);
+    }
 }

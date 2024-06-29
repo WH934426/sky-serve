@@ -43,4 +43,30 @@ public class AddressBookController {
         addressBookService.addAddressBook(addressBook);
         return Result.success();
     }
+
+    /**
+     * 根据id查询地址
+     *
+     * @param id 地址id
+     * @return 封装后的地址信息
+     */
+    @GetMapping("/{id}")
+    public Result<AddressBookEntity> getAddressBookById(@PathVariable Long id) {
+        log.info("根据id查询地址:{}", id);
+        AddressBookEntity addressBook = addressBookService.getAddressBookById(id);
+        return Result.success(addressBook);
+    }
+
+    /**
+     * 根据id修改地址
+     *
+     * @param addressBook 要修改的地址信息
+     * @return 提示信息
+     */
+    @PutMapping
+    public Result<String> updateAddressBookByUserId(@RequestBody AddressBookEntity addressBook) {
+        log.info("修改地址:{}", addressBook);
+        addressBookService.updateAddressBookByUserId(addressBook);
+        return Result.success();
+    }
 }

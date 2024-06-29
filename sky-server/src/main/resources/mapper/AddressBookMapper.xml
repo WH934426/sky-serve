@@ -9,6 +9,18 @@
         VALUES (#{userId}, #{consignee}, #{sex}, #{phone}, #{provinceCode}, #{provinceName}, #{cityCode}, #{cityName},
                 #{districtCode}, #{districtName}, #{detail}, #{label}, #{isDefault})
     </insert>
+    <update id="updateAddressBookByUserId">
+        update address_book
+        <set>
+            <if test="consignee != null">consignee = #{consignee},</if>
+            <if test="sex != null">sex = #{sex},</if>
+            <if test="phone != null">phone = #{phone},</if>
+            <if test="detail != null">detail = #{detail},</if>
+            <if test="label != null">label = #{label},</if>
+            <if test="isDefault != null">is_default = #{isDefault},</if>
+        </set>
+        where id = #{id}
+    </update>
 
     <select id="queryAllAddressBook" parameterType="AddressBookEntity" resultType="AddressBookEntity">
         select *
