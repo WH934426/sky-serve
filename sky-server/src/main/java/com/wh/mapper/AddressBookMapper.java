@@ -18,4 +18,11 @@ public interface AddressBookMapper {
      * @return 当前登录用户的所有地址信息
      */
     List<AddressBookEntity> queryAllAddressBook(AddressBookEntity addressBook);
+
+    /**
+     * 新增地址
+     *
+     * @param addressBook 地址簿实体类
+     */
+    void addAddressBook(AddressBookEntity addressBook);
 }

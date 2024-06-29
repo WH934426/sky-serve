@@ -1,5 +1,6 @@
 package com.wh.service.impl;
 
+import com.wh.context.BaseContext;
 import com.wh.entity.AddressBookEntity;
 import com.wh.mapper.AddressBookMapper;
 import com.wh.service.AddressBookService;
@@ -26,5 +27,17 @@ public class AddressBookServiceImpl implements AddressBookService {
     @Override
     public List<AddressBookEntity> queryAllAddressBook(AddressBookEntity addressBook) {
         return addressBookMapper.queryAllAddressBook(addressBook);
+    }
+
+    /**
+     * 新增地址
+     *
+     * @param addressBook 地址簿信息
+     */
+    @Override
+    public void addAddressBook(AddressBookEntity addressBook) {
+        addressBook.setUserId(BaseContext.getCurrentId());
+        addressBook.setIsDefault(0);
+        addressBookMapper.addAddressBook(addressBook);
     }
 }
