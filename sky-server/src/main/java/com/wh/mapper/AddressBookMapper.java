@@ -4,6 +4,7 @@ import com.wh.entity.AddressBookEntity;
 import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Update;
 
 import java.util.List;
 
@@ -51,4 +52,12 @@ public interface AddressBookMapper {
      */
     @Delete("delete from address_book where id=#{id}")
     void deleteAddressBookById(Long id);
+
+    /**
+     * 根据用户id修改默认地址
+     *
+     * @param addressBook 要修改的地址信息
+     */
+    @Update("update address_book set is_default=#{isDefault} where user_id=#{userId}")
+    void updateIsDefaultByUserId(AddressBookEntity addressBook);
 }

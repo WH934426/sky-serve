@@ -82,4 +82,17 @@ public class AddressBookController {
         addressBookService.deleteAddressBookById(id);
         return Result.success();
     }
+
+    /**
+     * 设置默认地址
+     *
+     * @param addressBook 要修改的地址信息
+     * @return 提示信息
+     */
+    @PutMapping("/default")
+    public Result<String> setDefaultAddress(@RequestBody AddressBookEntity addressBook) {
+        log.info("修改默认地址:{}", addressBook);
+        addressBookService.setDefaultAddress(addressBook);
+        return Result.success();
+    }
 }

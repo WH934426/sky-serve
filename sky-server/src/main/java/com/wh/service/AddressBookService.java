@@ -45,4 +45,11 @@ public interface AddressBookService {
      * @param id 地址id
      */
     void deleteAddressBookById(Long id);
+
+    /**
+     * 设置默认地址
+     *
+     * @param addressBook 地址簿信息
+     */
+    void setDefaultAddress(AddressBookEntity addressBook);
 }
