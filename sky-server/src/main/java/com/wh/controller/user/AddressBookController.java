@@ -2,12 +2,10 @@ package com.wh.controller.user;
 
 import com.wh.context.BaseContext;
 import com.wh.entity.AddressBookEntity;
-import com.wh.mapper.AddressBookMapper;
 import com.wh.result.Result;
 import com.wh.service.AddressBookService;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,8 +18,6 @@ public class AddressBookController {
 
     @Resource
     private AddressBookService addressBookService;
-    @Autowired
-    private AddressBookMapper addressBookMapper;
 
     /**
      * 查询当前登录用户的所有地址信息
@@ -114,7 +110,7 @@ public class AddressBookController {
         addressBook.setIsDefault(1);
 
         // 执行查询
-        List<AddressBookEntity> defaultAddresses = addressBookMapper.queryAllAddressBook(addressBook);
+        List<AddressBookEntity> defaultAddresses = addressBookService.queryAllAddressBook(addressBook);
 
         // 如果查询结果不为空且只有一个，默认认为第一个即为默认地址
         if (!CollectionUtils.isEmpty(defaultAddresses) && defaultAddresses.size() == 1) {
