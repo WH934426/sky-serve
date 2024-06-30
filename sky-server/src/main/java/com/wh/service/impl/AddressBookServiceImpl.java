@@ -6,6 +6,7 @@ import com.wh.mapper.AddressBookMapper;
 import com.wh.service.AddressBookService;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -77,6 +78,7 @@ public class AddressBookServiceImpl implements AddressBookService {
      *
      * @param addressBook 地址簿信息
      */
+    @Transactional
     @Override
     public void setDefaultAddress(AddressBookEntity addressBook) {
         // 将该用户的所有地址设为非默认

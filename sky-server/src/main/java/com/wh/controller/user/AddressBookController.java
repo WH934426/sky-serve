@@ -11,6 +11,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+/**
+ * 地址簿Controller控制器
+ */
 @RestController
 @RequestMapping("/user/addressBook")
 @Slf4j
