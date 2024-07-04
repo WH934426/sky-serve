@@ -1,19 +1,18 @@
 package com.wh.service.impl;
 
+import com.alibaba.fastjson.JSONObject;
 import com.wh.constant.MessageConstant;
 import com.wh.context.BaseContext;
 import com.wh.dto.OrderSubmitDTO;
-import com.wh.entity.AddressBookEntity;
-import com.wh.entity.OrdersDetailEntity;
-import com.wh.entity.OrdersEntity;
-import com.wh.entity.ShoppingCartEntity;
+import com.wh.dto.OrdersPaymentDTO;
+import com.wh.entity.*;
 import com.wh.exception.AddressBookBusinessException;
+import com.wh.exception.OrderBusinessException;
 import com.wh.exception.ShoppingCartBusinessException;
-import com.wh.mapper.AddressBookMapper;
-import com.wh.mapper.OrderDetailMapper;
-import com.wh.mapper.OrderMapper;
-import com.wh.mapper.ShoppingCartMapper;
+import com.wh.mapper.*;
 import com.wh.service.OrderService;
+import com.wh.utils.WeChatPayUtil;
+import com.wh.vo.OrderPaymentVO;
 import com.wh.vo.OrderSubmitVO;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
@@ -35,12 +34,16 @@ public class OrderServiceImpl implements OrderService {
     private final OrderDetailMapper orderDetailMapper;
     private final AddressBookMapper addressBookMapper;
     private final ShoppingCartMapper shoppingCartMapper;
+    private final UserMapper userMapper;
+    private final WeChatPayUtil weChatPayUtil;
 
-    public OrderServiceImpl(OrderMapper orderMapper, OrderDetailMapper orderDetailMapper, AddressBookMapper addressBookMapper, ShoppingCartMapper shoppingCartMapper) {
+    public OrderServiceImpl(OrderMapper orderMapper, OrderDetailMapper orderDetailMapper, AddressBookMapper addressBookMapper, ShoppingCartMapper shoppingCartMapper, UserMapper userMapper, WeChatPayUtil weChatPayUtil) {
         this.orderMapper = orderMapper;
         this.orderDetailMapper = orderDetailMapper;
         this.addressBookMapper = addressBookMapper;
         this.shoppingCartMapper = shoppingCartMapper;
+        this.userMapper = userMapper;
+        this.weChatPayUtil = weChatPayUtil;
     }
 
 
@@ -110,4 +113,62 @@ public class OrderServiceImpl implements OrderService {
                 .orderAmount(new BigDecimal(orders.getAmount()))
                 .build();
     }
+
+    /**
+     * 处理订单支付流程。
+     *
+     * @param ordersPaymentDTO 包含订单支付所需信息的DTO。
+     * @return 返回订单支付结果的VO。
+     * @throws Exception 如果订单已经支付，则抛出异常。
+     */
+    @Override
+    public OrderPaymentVO orderPayment(OrdersPaymentDTO ordersPaymentDTO) throws Exception {
+        Long userId = BaseContext.getCurrentId();
+        UserEntity user = userMapper.getUserById(userId);
+
+        // 调用微信支付工具的支付方法，发起支付请求
+        JSONObject jsonObject = weChatPayUtil.pay(
+                ordersPaymentDTO.getOrderNumber(),
+                new BigDecimal("0.01"),
+                "苍穹外卖订单",
+                user.getOpenid()
+        );
+        // 检查支付结果，如果订单已支付，则抛出异常
+        if (jsonObject.get("code") != null && jsonObject.get("code").equals("ORDERPAID")) {
+            throw new OrderBusinessException("订单已支付");
+        }
+        // 将支付结果JSON对象转换为OrderPaymentVO对象
+        OrderPaymentVO vo = jsonObject.toJavaObject(OrderPaymentVO.class);
+        // 设置VO对象的packageStr属性，该属性可能在JSON对象中以字符串形式存在
+        vo.setPackageStr(jsonObject.getString("package"));
+
+        return vo;
+    }
+
+
+    /**
+     * 处理支付成功后的订单状态更新。
+     * 当支付系统通知本系统支付成功时，需要调用此方法来更新订单的状态，将其标记为已支付并记录支付时间。
+     *
+     * @param outTradeNo 商家订单号，用于唯一标识一个订单。
+     */
+    @Override
+    public void paySuccess(String outTradeNo) {
+        Long userId = BaseContext.getCurrentId();
+
+        // 根据商家订单号和用户ID查询订单信息
+        OrdersEntity ordersDB = orderMapper.getOrdersByNumberAndUserId(outTradeNo, userId);
+
+        // 构建更新后的订单对象，状态改为待确认，支付状态改为已支付，并记录支付时间
+        OrdersEntity orders = OrdersEntity.builder()
+                .id(ordersDB.getId())
+                .status(OrdersEntity.TO_BE_CONFIRMED)
+                .payStatus(OrdersEntity.PAID)
+                .checkoutTime(LocalDateTime.now())
+                .build();
+
+        // 更新订单状态
+        orderMapper.updateOrders(orders);
+    }
+
 }
