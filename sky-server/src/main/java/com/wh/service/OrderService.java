@@ -43,4 +43,12 @@ public interface OrderService {
      * @return 订单分页查询结果
      */
     PageResult<OrdersVO> getHistoryOrders4User(OrderPageQueryDTO orderPageQueryDTO);
+
+    /**
+     * 根据id查询订单详情
+     *
+     * @param id 订单id
+     * @return 订单详情
+     */
+    OrdersVO getOrderDetailById(Long id);
 }

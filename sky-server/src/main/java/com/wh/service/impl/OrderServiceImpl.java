@@ -211,4 +211,25 @@ public class OrderServiceImpl implements OrderService {
         // 返回分页查询结果，包含订单列表和分页信息
         return new PageResult<>(page.getTotal(), list);
     }
+
+    /**
+     * 根据id查询订单详情
+     *
+     * @param id 订单id
+     * @return 包含订单详细信息的VO对象
+     */
+    @Override
+    public OrdersVO getOrderDetailById(Long id) {
+        // 通过订单ID查询订单实体
+        OrdersEntity orders = orderMapper.getOrdersById(id);
+        // 根据订单ID查询对应的订单详情实体列表
+        List<OrdersDetailEntity> orderDetailList = orderDetailMapper.getOrderDetailByOrderId(orders.getId());
+        // 创建订单VO对象，并将订单实体的属性复制到VO对象中
+        OrdersVO ordersVO = new OrdersVO();
+        BeanUtils.copyProperties(orders, ordersVO);
+        // 设置订单VO对象的订单详情列表
+        ordersVO.setOrderDetailList(orderDetailList);
+
+        return ordersVO;
+    }
 }
