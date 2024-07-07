@@ -271,4 +271,34 @@ public class OrderServiceImpl implements OrderService {
         // 更新订单信息到数据库
         orderMapper.updateOrders(orders);
     }
+
+    /**
+     * 根据订单ID复制订单商品至购物车
+     * 该方法用于用户再次下单时，将之前订单的商品信息复制到购物车中，方便用户快速下单。
+     *
+     * @param id 订单ID，用于查询订单详情。
+     */
+    @Override
+    public void repetitionOrder(Long id) {
+        // 获取当前用户ID，用于设置购物车的商品所属用户。
+        Long userId = BaseContext.getCurrentId();
+
+        // 根据订单ID查询订单详情列表。
+        List<OrdersDetailEntity> orderDetailList = orderDetailMapper.getOrderDetailByOrderId(id);
+
+        // 将订单详情转换为购物车项，并批量添加到购物车。
+        List<ShoppingCartEntity> shoppingCartList = orderDetailList.stream().map(x -> {
+            ShoppingCartEntity shoppingCart = new ShoppingCartEntity();
+            // 复制订单详情信息到购物车项，排除ID字段。
+            BeanUtils.copyProperties(x, shoppingCart, "id");
+            shoppingCart.setUserId(userId);
+            shoppingCart.setCreateTime(LocalDateTime.now());
+
+            return shoppingCart;
+        }).toList();
+
+        // 批量添加购物车项到购物车表中。
+        shoppingCartMapper.addShoppingCartBatch(shoppingCartList);
+    }
+
 }

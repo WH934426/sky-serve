@@ -58,4 +58,11 @@ public interface OrderService {
      * @param id 订单id
      */
     void cancelOrderById(Long id) throws Exception;
+
+    /**
+     * 再来一单
+     *
+     * @param id 订单id
+     */
+    void repetitionOrder(Long id);
 }
