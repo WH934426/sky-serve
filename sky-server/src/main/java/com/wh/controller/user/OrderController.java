@@ -81,4 +81,18 @@ public class OrderController {
         OrdersVO orderDetail = orderService.getOrderDetailById(id);
         return Result.success(orderDetail);
     }
+
+    /**
+     * 用户取消订单
+     *
+     * @param id 订单id
+     * @return 提示信息
+     * @throws Exception 抛出异常
+     */
+    @PutMapping("/cancel/{id}")
+    public Result<String> cancelOrder(@PathVariable Long id) throws Exception {
+        log.info("被取消的订单id：{}", id);
+        orderService.cancelOrderById(id);
+        return Result.success();
+    }
 }

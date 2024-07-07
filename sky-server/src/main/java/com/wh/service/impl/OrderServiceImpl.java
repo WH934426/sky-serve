@@ -232,4 +232,43 @@ public class OrderServiceImpl implements OrderService {
 
         return ordersVO;
     }
+
+    /**
+     * 用户取消订单
+     *
+     * @param id 订单id
+     * @throws Exception 如果订单不存在或者订单状态错误，则抛出异常
+     */
+    @Override
+    public void cancelOrderById(Long id) throws Exception {
+        // 根据订单ID查询订单信息
+        OrdersEntity ordersDB = orderMapper.getOrdersById(id);
+
+        // 检查订单是否存在，如果不存在则抛出异常
+        if (ordersDB == null) {
+            throw new OrderBusinessException(MessageConstant.ORDER_NOT_FOUND);
+        }
+        // 检查订单状态，如果状态大于待确认，则不能取消订单
+        if (ordersDB.getStatus() > OrdersEntity.TO_BE_CONFIRMED) {
+            throw new OrderBusinessException(MessageConstant.ORDER_STATUS_ERROR);
+        }
+        // 创建一个新的订单对象，用于更新订单状态
+        OrdersEntity orders = new OrdersEntity();
+        orders.setId(ordersDB.getId());
+        // 如果订单状态为待确认，执行退款操作，并将支付状态设置为已退款
+        if (ordersDB.getStatus().equals(OrdersEntity.TO_BE_CONFIRMED)) {
+            weChatPayUtil.refund(
+                    ordersDB.getNumber(),
+                    ordersDB.getNumber(),
+                    new BigDecimal("0.01"),
+                    new BigDecimal("0.01"));
+            orders.setPayStatus(OrdersEntity.REFUND);
+        }
+        // 设置订单状态为已取消，并记录取消原因和时间
+        orders.setStatus(OrdersEntity.CANCELLED);
+        orders.setCancelReason("用户取消订单");
+        orders.setCancelTime(LocalDateTime.now());
+        // 更新订单信息到数据库
+        orderMapper.updateOrders(orders);
+    }
 }

@@ -19,4 +19,6 @@ public class MessageConstant {
     public static final String LOGIN_FAILED = "登录失败";
     public static final String ADDRESS_BOOK_IS_NULL = "用户地址为空，不能下单";
     public static final String SHOPPING_CART_IS_NULL = "购物车数据为空，不能下单";
+    public static final String ORDER_NOT_FOUND = "订单不存在";
+    public static final String ORDER_STATUS_ERROR = "订单状态错误";
 }
