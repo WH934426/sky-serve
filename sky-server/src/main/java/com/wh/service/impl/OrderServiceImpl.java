@@ -1,8 +1,11 @@
 package com.wh.service.impl;
 
 import com.alibaba.fastjson.JSONObject;
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
 import com.wh.constant.MessageConstant;
 import com.wh.context.BaseContext;
+import com.wh.dto.OrderPageQueryDTO;
 import com.wh.dto.OrderSubmitDTO;
 import com.wh.dto.OrdersPaymentDTO;
 import com.wh.entity.*;
@@ -10,10 +13,12 @@ import com.wh.exception.AddressBookBusinessException;
 import com.wh.exception.OrderBusinessException;
 import com.wh.exception.ShoppingCartBusinessException;
 import com.wh.mapper.*;
+import com.wh.result.PageResult;
 import com.wh.service.OrderService;
 import com.wh.utils.WeChatPayUtil;
 import com.wh.vo.OrderPaymentVO;
 import com.wh.vo.OrderSubmitVO;
+import com.wh.vo.OrdersVO;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,7 +34,6 @@ import java.util.List;
 @Service
 public class OrderServiceImpl implements OrderService {
 
-    // TODO： 多个构造
     private final OrderMapper orderMapper;
     private final OrderDetailMapper orderDetailMapper;
     private final AddressBookMapper addressBookMapper;
@@ -171,4 +175,40 @@ public class OrderServiceImpl implements OrderService {
         orderMapper.updateOrders(orders);
     }
 
+    /**
+     * 用户端历史订单分页查询
+     *
+     * @param orderPageQueryDTO 订单分页查询需要提交的数据
+     * @return 订单分页查询结果
+     */
+    @Override
+    public PageResult<OrdersVO> getHistoryOrders4User(OrderPageQueryDTO orderPageQueryDTO) {
+        PageHelper.startPage(orderPageQueryDTO.getPage(), orderPageQueryDTO.getPageSize());
+        orderPageQueryDTO.setUserId(BaseContext.getCurrentId());
+        orderPageQueryDTO.setStatus(orderPageQueryDTO.getStatus());
+
+        // 根据查询条件查询订单实体的分页结果
+        Page<OrdersEntity> page = orderMapper.getHistoryOrders4User(orderPageQueryDTO);
+        List<OrdersVO> list = new ArrayList<>();
+
+        // 如果查询结果存在，则对每个订单实体进行转换成订单VO的操作
+        if (page != null && page.getTotal() > 0) {
+            for (OrdersEntity orders : page) {
+                Long ordersId = orders.getId();
+                // 根据订单ID查询对应的订单详情列表
+                List<OrdersDetailEntity> orderDetailList = orderDetailMapper.getOrderDetailByOrderId(ordersId);
+                // 创建订单VO，并将订单实体的属性复制到VO中
+                OrdersVO ordersVO = new OrdersVO();
+                BeanUtils.copyProperties(orders, ordersVO);
+                // 设置订单的详情列表
+                ordersVO.setOrderDetailList(orderDetailList);
+
+                list.add(ordersVO);
+            }
+        }
+        // 断言page不为null，确保后续使用page.getTotal()时不会出现空指针异常
+        assert page != null;
+        // 返回分页查询结果，包含订单列表和分页信息
+        return new PageResult<>(page.getTotal(), list);
+    }
 }

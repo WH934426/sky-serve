@@ -1,11 +1,14 @@
 package com.wh.controller.user;
 
+import com.wh.dto.OrderPageQueryDTO;
 import com.wh.dto.OrderSubmitDTO;
 import com.wh.dto.OrdersPaymentDTO;
+import com.wh.result.PageResult;
 import com.wh.result.Result;
 import com.wh.service.OrderService;
 import com.wh.vo.OrderPaymentVO;
 import com.wh.vo.OrderSubmitVO;
+import com.wh.vo.OrdersVO;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
@@ -51,5 +54,18 @@ public class OrderController {
         log.info("生成预支付交易单：{}", orderPaymentVO);
         // 返回支付结果的成功响应
         return Result.success(orderPaymentVO);
+    }
+
+    /**
+     * 历史订单查询
+     *
+     * @param orderPageQueryDTO 分页查询条件
+     * @return 分页后的查询结果
+     */
+    @GetMapping("/historyOrders")
+    public Result<PageResult<OrdersVO>> getHistoryOrders(@RequestBody OrderPageQueryDTO orderPageQueryDTO) {
+        log.info("查询历史订单数据:{}", orderPageQueryDTO);
+        PageResult<OrdersVO> pageResult = orderService.getHistoryOrders4User(orderPageQueryDTO);
+        return Result.success(pageResult);
     }
 }

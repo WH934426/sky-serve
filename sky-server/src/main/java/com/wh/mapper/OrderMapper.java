@@ -1,5 +1,7 @@
 package com.wh.mapper;
 
+import com.github.pagehelper.Page;
+import com.wh.dto.OrderPageQueryDTO;
 import com.wh.entity.OrdersEntity;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
@@ -33,4 +35,12 @@ public interface OrderMapper {
      * @param orders 订单
      */
     void updateOrders(OrdersEntity orders);
+
+    /**
+     * 用户端获取历史订单
+     *
+     * @param orderPageQueryDTO 分页查询条件
+     * @return 分页数据
+     */
+    Page<OrdersEntity> getHistoryOrders4User(OrderPageQueryDTO orderPageQueryDTO);
 }

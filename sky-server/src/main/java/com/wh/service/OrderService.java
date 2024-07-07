@@ -1,9 +1,12 @@
 package com.wh.service;
 
+import com.wh.dto.OrderPageQueryDTO;
 import com.wh.dto.OrderSubmitDTO;
 import com.wh.dto.OrdersPaymentDTO;
+import com.wh.result.PageResult;
 import com.wh.vo.OrderPaymentVO;
 import com.wh.vo.OrderSubmitVO;
+import com.wh.vo.OrdersVO;
 
 /**
  * 订单service接口
@@ -32,4 +35,12 @@ public interface OrderService {
      * @param outTradeNo 订单号
      */
     void paySuccess(String outTradeNo);
+
+    /**
+     * 用户端历史订单分页查询
+     *
+     * @param orderPageQueryDTO 订单分页查询需要提交的数据
+     * @return 订单分页查询结果
+     */
+    PageResult<OrdersVO> getHistoryOrders4User(OrderPageQueryDTO orderPageQueryDTO);
 }
