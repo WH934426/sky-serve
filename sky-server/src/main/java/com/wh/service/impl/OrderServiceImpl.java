@@ -19,6 +19,7 @@ import com.wh.utils.WeChatPayUtil;
 import com.wh.vo.OrderPaymentVO;
 import com.wh.vo.OrderSubmitVO;
 import com.wh.vo.OrdersVO;
+import io.jsonwebtoken.lang.Collections;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -301,4 +302,62 @@ public class OrderServiceImpl implements OrderService {
         shoppingCartMapper.addShoppingCartBatch(shoppingCartList);
     }
 
+    /**
+     * 根据条件查询用户的订单信息并分页。
+     *
+     * @param orderPageQueryDTO 包含分页信息和查询条件的数据传输对象。
+     * @return 返回分页结果，其中包含转换后的订单视图对象列表。
+     */
+    @Override
+    public PageResult<OrdersVO> searchOrdersByCondition(OrderPageQueryDTO orderPageQueryDTO) {
+        PageHelper.startPage(orderPageQueryDTO.getPage(), orderPageQueryDTO.getPageSize());
+        // 根据条件查询用户的订单历史记录
+        Page<OrdersEntity> page = orderMapper.getHistoryOrders4User(orderPageQueryDTO);
+        // 部分订单状态，需要额外返回订单菜品信息，将Orders转化为OrderVO
+        List<OrdersVO> ordersVOList = getOrderVOList(page);
+        return new PageResult<>(page.getTotal(), ordersVOList);
+    }
+
+    /**
+     * 根据分页对象转换为订单视图对象列表。
+     * 该方法主要用于将数据库查询得到的订单实体对象转换为面向前端展示的订单视图对象。
+     * 这种转换包括了基本属性的复制以及特定属性的加工，如将订单中的菜品信息汇总为字符串。
+     *
+     * @param page 分页对象，包含查询结果和分页信息。
+     * @return 返回转换后的订单视图对象列表。
+     */
+    private List<OrdersVO> getOrderVOList(Page<OrdersEntity> page) {
+        List<OrdersVO> ordersVOList = new ArrayList<>();
+        List<OrdersEntity> orderList = page.getResult();
+        // 当查询结果不为空时，进行转换处理
+        if (!Collections.isEmpty(orderList)) {
+            for (OrdersEntity orders : orderList) {
+                OrdersVO ordersVO = new OrdersVO();
+                // 将订单实体的基本信息转换到视图对象中
+                BeanUtils.copyProperties(orders, ordersVO);
+                String orderDishes = getDishesStr(orders);
+                // 设置订单的菜品信息到视图对象中
+                ordersVO.setOrderDishes(orderDishes);
+                // 将处理后的订单视图对象添加到结果列表中
+                ordersVOList.add(ordersVO);
+            }
+        }
+        return ordersVOList;
+    }
+
+    /**
+     * 根据订单ID获取订单中的菜品字符串。
+     * 将订单中的每个菜品名称和数量拼接成字符串格式，多个菜品之间用逗号分隔。
+     *
+     * @param orders 订单实体，用于获取订单ID。
+     * @return 返回拼接好的菜品字符串。
+     */
+    private String getDishesStr(OrdersEntity orders) {
+        List<OrdersDetailEntity> orderDetailList = orderDetailMapper.getOrderDetailByOrderId(orders.getId());
+        // 将订单中的每个菜品名称和数量拼接成字符串，并用逗号分隔
+        List<String> orderDishList = orderDetailList.stream().map(x -> x.getName() + "*" + x.getNumber() + ";"
+        ).toList();
+        // 将所有菜品信息合并为一个字符串
+        return String.join(",", orderDishList);
+    }
 }
