@@ -4,6 +4,7 @@ import com.wh.dto.OrderPageQueryDTO;
 import com.wh.result.PageResult;
 import com.wh.result.Result;
 import com.wh.service.OrderService;
+import com.wh.vo.OrderStatisticsVO;
 import com.wh.vo.OrdersVO;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
@@ -33,5 +34,16 @@ public class OrderController {
         log.info("查询到的订单信息：{}", orderPageQueryDTO);
         PageResult<OrdersVO> pageResult = orderService.searchOrdersByCondition(orderPageQueryDTO);
         return Result.success(pageResult);
+    }
+
+    /**
+     * 各个状态的订单数量统计
+     *
+     * @return 订单数量统计
+     */
+    @GetMapping("/statistics")
+    public Result<OrderStatisticsVO> statisticsOrder() {
+        OrderStatisticsVO orderStatisticsVO = orderService.statisticsOrder();
+        return Result.success(orderStatisticsVO);
     }
 }

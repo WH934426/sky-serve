@@ -17,6 +17,7 @@ import com.wh.result.PageResult;
 import com.wh.service.OrderService;
 import com.wh.utils.WeChatPayUtil;
 import com.wh.vo.OrderPaymentVO;
+import com.wh.vo.OrderStatisticsVO;
 import com.wh.vo.OrderSubmitVO;
 import com.wh.vo.OrdersVO;
 import io.jsonwebtoken.lang.Collections;
@@ -316,6 +317,26 @@ public class OrderServiceImpl implements OrderService {
         // 部分订单状态，需要额外返回订单菜品信息，将Orders转化为OrderVO
         List<OrdersVO> ordersVOList = getOrderVOList(page);
         return new PageResult<>(page.getTotal(), ordersVOList);
+    }
+
+    /**
+     * 各个状态的订单数量统计
+     *
+     * @return 各个状态的订单数量统计
+     */
+    @Override
+    public OrderStatisticsVO statisticsOrder() {
+        // 根据状态，分别查询出待接单，待派送，派送中的订单数量
+        Integer toBeConfirmed = orderMapper.getOrderCountByStatus(OrdersEntity.TO_BE_CONFIRMED);
+        Integer confirmed = orderMapper.getOrderCountByStatus(OrdersEntity.CONFIRMED);
+        Integer deliveryInProgress = orderMapper.getOrderCountByStatus(OrdersEntity.DELIVERY_IN_PROGRESS);
+
+        // 封装并返回统计结果
+        return OrderStatisticsVO.builder()
+                .toBeConfirmed(toBeConfirmed)
+                .confirmed(confirmed)
+                .deliveryInProgress(deliveryInProgress)
+                .build();
     }
 
     /**

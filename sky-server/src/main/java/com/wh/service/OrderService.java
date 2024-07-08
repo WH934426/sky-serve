@@ -5,6 +5,7 @@ import com.wh.dto.OrderSubmitDTO;
 import com.wh.dto.OrdersPaymentDTO;
 import com.wh.result.PageResult;
 import com.wh.vo.OrderPaymentVO;
+import com.wh.vo.OrderStatisticsVO;
 import com.wh.vo.OrderSubmitVO;
 import com.wh.vo.OrdersVO;
 
@@ -73,4 +74,11 @@ public interface OrderService {
      * @return 查询分页结果
      */
     PageResult<OrdersVO> searchOrdersByCondition(OrderPageQueryDTO orderPageQueryDTO);
+
+    /**
+     * 各个状态的订单数量统计
+     *
+     * @return 各个状态的订单数量统计
+     */
+    OrderStatisticsVO statisticsOrder();
 }
