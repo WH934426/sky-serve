@@ -7,6 +7,7 @@ import com.wh.constant.MessageConstant;
 import com.wh.context.BaseContext;
 import com.wh.dto.OrderPageQueryDTO;
 import com.wh.dto.OrderSubmitDTO;
+import com.wh.dto.OrdersConfirmDTO;
 import com.wh.dto.OrdersPaymentDTO;
 import com.wh.entity.*;
 import com.wh.exception.AddressBookBusinessException;
@@ -337,6 +338,20 @@ public class OrderServiceImpl implements OrderService {
                 .confirmed(confirmed)
                 .deliveryInProgress(deliveryInProgress)
                 .build();
+    }
+
+    /**
+     * 商家接单
+     *
+     * @param ordersConfirmDTO 订单确认需要提交的数据
+     */
+    @Override
+    public void confirmOrder(OrdersConfirmDTO ordersConfirmDTO) {
+        OrdersEntity orders = OrdersEntity.builder()
+                .id(ordersConfirmDTO.getId())
+                .status(OrdersEntity.CONFIRMED)
+                .build();
+        orderMapper.updateOrders(orders);
     }
 
     /**

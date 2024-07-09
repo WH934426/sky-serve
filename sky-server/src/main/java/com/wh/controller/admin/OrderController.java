@@ -1,6 +1,7 @@
 package com.wh.controller.admin;
 
 import com.wh.dto.OrderPageQueryDTO;
+import com.wh.dto.OrdersConfirmDTO;
 import com.wh.result.PageResult;
 import com.wh.result.Result;
 import com.wh.service.OrderService;
@@ -8,10 +9,7 @@ import com.wh.vo.OrderStatisticsVO;
 import com.wh.vo.OrdersVO;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * 服务端订单管理
@@ -57,5 +55,18 @@ public class OrderController {
     @GetMapping("/details/{id}")
     public Result<OrdersVO> getOrderDetailById(@PathVariable Long id) {
         return Result.success(orderService.getOrderDetailById(id));
+    }
+
+    /**
+     * 商家阶段
+     *
+     * @param ordersConfirmDTO 订单确认
+     * @return 提示信息
+     */
+    @PutMapping("/confirm")
+    public Result<Void> confirmOrder(@RequestBody OrdersConfirmDTO ordersConfirmDTO) {
+        log.info("商家是否接单：{}", ordersConfirmDTO.getStatus());
+        orderService.confirmOrder(ordersConfirmDTO);
+        return Result.success();
     }
 }

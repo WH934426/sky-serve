@@ -2,6 +2,7 @@ package com.wh.service;
 
 import com.wh.dto.OrderPageQueryDTO;
 import com.wh.dto.OrderSubmitDTO;
+import com.wh.dto.OrdersConfirmDTO;
 import com.wh.dto.OrdersPaymentDTO;
 import com.wh.result.PageResult;
 import com.wh.vo.OrderPaymentVO;
@@ -81,4 +82,11 @@ public interface OrderService {
      * @return 各个状态的订单数量统计
      */
     OrderStatisticsVO statisticsOrder();
+
+    /**
+     * 商家接单
+     *
+     * @param ordersConfirmDTO 订单确认需要提交的数据
+     */
+    void confirmOrder(OrdersConfirmDTO ordersConfirmDTO);
 }
