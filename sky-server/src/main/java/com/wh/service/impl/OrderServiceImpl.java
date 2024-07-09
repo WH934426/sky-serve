@@ -5,10 +5,7 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.wh.constant.MessageConstant;
 import com.wh.context.BaseContext;
-import com.wh.dto.OrderPageQueryDTO;
-import com.wh.dto.OrderSubmitDTO;
-import com.wh.dto.OrdersConfirmDTO;
-import com.wh.dto.OrdersPaymentDTO;
+import com.wh.dto.*;
 import com.wh.entity.*;
 import com.wh.exception.AddressBookBusinessException;
 import com.wh.exception.OrderBusinessException;
@@ -30,6 +27,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * 订单service层实现类
@@ -353,6 +351,46 @@ public class OrderServiceImpl implements OrderService {
                 .build();
         orderMapper.updateOrders(orders);
     }
+
+    /**
+     * 拒绝订单。
+     * <p>该方法用于处理订单的拒绝操作，它首先验证订单是否存在且状态为待确认，
+     * 如果订单已支付，则尝试进行退款操作。最后，更新订单状态为已取消。</p>
+     *
+     * @param ordersRejectionDTO 包含订单拒绝信息的数据传输对象，包括订单ID和拒绝原因。
+     * @throws Exception 如果订单不存在或状态不正确，则抛出异常。
+     */
+    @Override
+    public void rejectOrder(OrdersRejectionDTO ordersRejectionDTO) throws Exception {
+        // 根据订单ID查询订单信息
+        OrdersEntity orderDB = orderMapper.getOrdersById(ordersRejectionDTO.getId());
+        // 验证订单是否存在且状态为待确认
+        if (orderDB == null || !Objects.equals(orderDB.getStatus(), OrdersEntity.TO_BE_CONFIRMED)) {
+            throw new OrderBusinessException(MessageConstant.ORDER_STATUS_ERROR);
+        }
+
+        // 检查订单支付状态，如果已支付，则进行退款操作
+        Integer payStatus = orderDB.getPayStatus();
+        if (Objects.equals(payStatus, OrdersEntity.PAID)) {
+            // 调用微信支付工具进行退款，假设退款金额为0.01元
+            String refund = weChatPayUtil.refund(
+                    orderDB.getNumber(),
+                    orderDB.getNumber(),
+                    new BigDecimal("0.01"),
+                    new BigDecimal("0.01"));
+        }
+
+        // 构建订单实体，更新订单状态为已取消
+        OrdersEntity orders = OrdersEntity.builder()
+                .id(ordersRejectionDTO.getId())
+                .status(OrdersEntity.CANCELLED)
+                .rejectReason(ordersRejectionDTO.getRejectionReason())
+                .cancelTime(LocalDateTime.now())
+                .build();
+        // 更新订单信息
+        orderMapper.updateOrders(orders);
+    }
+
 
     /**
      * 根据分页对象转换为订单视图对象列表。

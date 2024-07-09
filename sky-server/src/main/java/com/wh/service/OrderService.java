@@ -1,9 +1,6 @@
 package com.wh.service;
 
-import com.wh.dto.OrderPageQueryDTO;
-import com.wh.dto.OrderSubmitDTO;
-import com.wh.dto.OrdersConfirmDTO;
-import com.wh.dto.OrdersPaymentDTO;
+import com.wh.dto.*;
 import com.wh.result.PageResult;
 import com.wh.vo.OrderPaymentVO;
 import com.wh.vo.OrderStatisticsVO;
@@ -89,4 +86,12 @@ public interface OrderService {
      * @param ordersConfirmDTO 订单确认需要提交的数据
      */
     void confirmOrder(OrdersConfirmDTO ordersConfirmDTO);
+
+    /**
+     * 商家拒单
+     *
+     * @param ordersRejectionDTO 包含订单拒绝信息的数据传输对象，包括订单ID和拒绝原因。
+     * @throws Exception 如果订单不存在或状态不正确，则抛出异常。
+     */
+    void rejectOrder(OrdersRejectionDTO ordersRejectionDTO) throws Exception;
 }

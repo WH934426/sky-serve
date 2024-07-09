@@ -2,6 +2,7 @@ package com.wh.controller.admin;
 
 import com.wh.dto.OrderPageQueryDTO;
 import com.wh.dto.OrdersConfirmDTO;
+import com.wh.dto.OrdersRejectionDTO;
 import com.wh.result.PageResult;
 import com.wh.result.Result;
 import com.wh.service.OrderService;
@@ -67,6 +68,18 @@ public class OrderController {
     public Result<Void> confirmOrder(@RequestBody OrdersConfirmDTO ordersConfirmDTO) {
         log.info("商家是否接单：{}", ordersConfirmDTO.getStatus());
         orderService.confirmOrder(ordersConfirmDTO);
+        return Result.success();
+    }
+
+    /**
+     * 商家拒单
+     *
+     * @param ordersRejectionDTO 包含订单拒绝信息的数据传输对象，包括订单ID和拒绝原因。
+     * @throws Exception 如果订单不存在或状态不正确，则抛出异常。
+     */
+    @PutMapping("/rejection")
+    public Result<Void> rejectOrder(@RequestBody OrdersRejectionDTO ordersRejectionDTO) throws Exception {
+        orderService.rejectOrder(ordersRejectionDTO);
         return Result.success();
     }
 }
