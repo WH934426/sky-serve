@@ -63,7 +63,6 @@ public class UserServiceImpl implements UserService {
     }
 
 
-
     /**
      * 根据微信小程序的code换取用户的openid。
      * 这是一个关键步骤，用于识别和验证用户身份。
@@ -73,7 +72,7 @@ public class UserServiceImpl implements UserService {
      */
     private String getOpenid(String code) {
         // 构建请求参数映射，包括appid、secret等必传参数
-        Map<String, String> map = new HashMap<>();
+        Map<String, Object> map = new HashMap<>();
         map.put("appid", weChatProperties.getAppid());
         map.put("secret", weChatProperties.getSecret());
         map.put("js_code", code);

@@ -36,7 +36,7 @@ public class HttpClientUtil {
      * @param paramMap 请求参数的映射表。
      * @return 返回HTTP响应的字符串内容。
      */
-    public static String doGet(String url, Map<String, String> paramMap) {
+    public static String doGet(String url, Map<String, Object> paramMap) {
         // 创建默认的HttpClient实例
         CloseableHttpClient httpClient = HttpClients.createDefault();
 
@@ -50,8 +50,11 @@ public class HttpClientUtil {
             URIBuilder builder = new URIBuilder(url);
             if (paramMap != null) {
                 // 遍历参数映射表，添加参数到URI构建器
-                for (String key : paramMap.keySet()) {
-                    builder.addParameter(key, paramMap.get(key));
+                for (Map.Entry<String, Object> entry : paramMap.entrySet()) {
+                    // 检查并转换参数值为String
+                    String value = entry.getValue() instanceof String ? (String) entry.getValue()
+                            : String.valueOf(entry.getValue());
+                    builder.addParameter(entry.getKey(), value);
                 }
             }
             // 根据URI构建者构建最终的URI
