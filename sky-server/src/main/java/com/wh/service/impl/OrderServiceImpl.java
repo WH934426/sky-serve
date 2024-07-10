@@ -422,6 +422,29 @@ public class OrderServiceImpl implements OrderService {
         orderMapper.updateOrders(orders);
     }
 
+    /**
+     * 商家派送订单
+     *
+     * @param id 订单id
+     */
+    @Override
+    public void deliveryOrder(Long id) {
+        // 根据id查询订单
+        OrdersEntity orderDB = orderMapper.getOrdersById(id);
+
+        // 验证订单是否存在且状态为待派送
+        if (orderDB == null || !Objects.equals(orderDB.getStatus(), OrdersEntity.CONFIRMED)) {
+            throw new OrderBusinessException(MessageConstant.ORDER_STATUS_ERROR);
+        }
+
+        OrdersEntity orders = OrdersEntity.builder()
+                .id(orderDB.getId())
+                .status(OrdersEntity.DELIVERY_IN_PROGRESS) // 订单状态设置为待派送
+                .build();
+        // 更新订单信息
+        orderMapper.updateOrders(orders);
+    }
+
 
     /**
      * 根据分页对象转换为订单视图对象列表。

@@ -102,4 +102,11 @@ public interface OrderService {
      * @throws Exception 如果订单不存在或状态不正确，则抛出异常。
      */
     void cancelOrder(OrdersCancelDTO ordersCancelDTO) throws Exception;
+
+    /**
+     * 商家派送订单
+     *
+     * @param id 订单id
+     */
+    void deliveryOrder(Long id);
 }
