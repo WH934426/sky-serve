@@ -1,6 +1,7 @@
 package com.wh.controller.admin;
 
 import com.wh.dto.OrderPageQueryDTO;
+import com.wh.dto.OrdersCancelDTO;
 import com.wh.dto.OrdersConfirmDTO;
 import com.wh.dto.OrdersRejectionDTO;
 import com.wh.result.PageResult;
@@ -75,11 +76,25 @@ public class OrderController {
      * 商家拒单
      *
      * @param ordersRejectionDTO 包含订单拒绝信息的数据传输对象，包括订单ID和拒绝原因。
+     * @return 提示信息
      * @throws Exception 如果订单不存在或状态不正确，则抛出异常。
      */
     @PutMapping("/rejection")
     public Result<Void> rejectOrder(@RequestBody OrdersRejectionDTO ordersRejectionDTO) throws Exception {
         orderService.rejectOrder(ordersRejectionDTO);
+        return Result.success();
+    }
+
+    /**
+     * 商家取消订单
+     *
+     * @param ordersCancelDTO 包含订单取消信息的数据传输对象，包括订单ID和取消原因。
+     * @return 提示信息
+     * @throws Exception 如果订单不存在或状态不正确，则抛出异常。
+     */
+    @PutMapping("/cancel")
+    public Result<Void> cancelOrder(@RequestBody OrdersCancelDTO ordersCancelDTO) throws Exception {
+        orderService.cancelOrder(ordersCancelDTO);
         return Result.success();
     }
 }

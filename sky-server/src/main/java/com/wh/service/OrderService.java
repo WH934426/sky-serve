@@ -94,4 +94,12 @@ public interface OrderService {
      * @throws Exception 如果订单不存在或状态不正确，则抛出异常。
      */
     void rejectOrder(OrdersRejectionDTO ordersRejectionDTO) throws Exception;
+
+    /**
+     * 商家取消订单
+     *
+     * @param ordersCancelDTO 包含订单取消信息的数据传输对象，包括订单ID和取消原因。
+     * @throws Exception 如果订单不存在或状态不正确，则抛出异常。
+     */
+    void cancelOrder(OrdersCancelDTO ordersCancelDTO) throws Exception;
 }

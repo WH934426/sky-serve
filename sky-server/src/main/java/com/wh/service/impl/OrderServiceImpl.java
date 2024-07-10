@@ -391,6 +391,37 @@ public class OrderServiceImpl implements OrderService {
         orderMapper.updateOrders(orders);
     }
 
+    /**
+     * 商家取消订单
+     *
+     * @param ordersCancelDTO 包含订单取消信息的数据传输对象，包括订单ID和取消原因。
+     * @throws Exception 如果订单不存在或状态不正确，则抛出异常。
+     */
+    @Override
+    public void cancelOrder(OrdersCancelDTO ordersCancelDTO) throws Exception {
+        OrdersEntity orderDB = orderMapper.getOrdersById(ordersCancelDTO.getId());
+        // 检查订单支付状态，如果已支付，则进行退款操作
+        Integer payStatus = orderDB.getPayStatus();
+        if (Objects.equals(payStatus, OrdersEntity.PAID)) {
+            // 调用微信支付工具进行退款，假设退款金额为0.01元
+            String refund = weChatPayUtil.refund(
+                    orderDB.getNumber(),
+                    orderDB.getNumber(),
+                    new BigDecimal("0.01"),
+                    new BigDecimal("0.01"));
+        }
+
+        // 管理端取消订单需要退款
+        OrdersEntity orders = OrdersEntity.builder()
+                .id(ordersCancelDTO.getId())
+                .status(OrdersEntity.CANCELLED)
+                .cancelReason(ordersCancelDTO.getCancelReason())
+                .cancelTime(LocalDateTime.now())
+                .build();
+        // 更新订单信息
+        orderMapper.updateOrders(orders);
+    }
+
 
     /**
      * 根据分页对象转换为订单视图对象列表。
