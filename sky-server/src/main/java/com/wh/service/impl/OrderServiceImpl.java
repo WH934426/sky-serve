@@ -1,5 +1,7 @@
 package com.wh.service.impl;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
@@ -13,6 +15,7 @@ import com.wh.exception.ShoppingCartBusinessException;
 import com.wh.mapper.*;
 import com.wh.result.PageResult;
 import com.wh.service.OrderService;
+import com.wh.utils.HttpClientUtil;
 import com.wh.utils.WeChatPayUtil;
 import com.wh.vo.OrderPaymentVO;
 import com.wh.vo.OrderStatisticsVO;
@@ -20,14 +23,13 @@ import com.wh.vo.OrderSubmitVO;
 import com.wh.vo.OrdersVO;
 import io.jsonwebtoken.lang.Collections;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * 订单service层实现类
@@ -52,72 +54,8 @@ public class OrderServiceImpl implements OrderService {
     }
 
 
-    /**
-     * 用户下单
-     *
-     * @param orderSubmitDTO 用户下单需要提交的数据
-     * @return 订单提交成功返回的VO
-     * @throws AddressBookBusinessException  如果地址信息不存在，则抛出地址簿业务异常。
-     * @throws ShoppingCartBusinessException 如果购物车信息为空，则抛出购物车业务异常。
-     */
-    @Transactional
-    @Override
-    public OrderSubmitVO orderSubmit(OrderSubmitDTO orderSubmitDTO) {
-
-        // 处理异常情况
-        // 处理地址信息异常
-        AddressBookEntity addressBook = addressBookMapper.getAddressBookById(Long.valueOf(orderSubmitDTO.getAddressBookId()));
-        if (addressBook == null) {
-            throw new AddressBookBusinessException(MessageConstant.ADDRESS_BOOK_IS_NULL);
-        }
-
-        // 获取用户id
-        Long userId = BaseContext.getCurrentId();
-
-        // 处理购物车数据为空异常
-        ShoppingCartEntity shoppingCart = new ShoppingCartEntity();
-        shoppingCart.setUserId(userId);
-        List<ShoppingCartEntity> shoppingCartList = shoppingCartMapper.queryShoppingCarts(shoppingCart);
-        if (shoppingCartList == null || shoppingCartList.isEmpty()) {
-            throw new ShoppingCartBusinessException(MessageConstant.SHOPPING_CART_IS_NULL);
-        }
-
-        // 构造订单对象
-        OrdersEntity orders = new OrdersEntity();
-        BeanUtils.copyProperties(orderSubmitDTO, orders);
-        orders.setOrderTime(LocalDateTime.now());
-        orders.setPayStatus(OrdersEntity.UN_PAID);
-        orders.setStatus(OrdersEntity.PENDING_PAYMENT);
-        orders.setNumber(String.valueOf(System.currentTimeMillis()));
-        orders.setAddress(addressBook.getDetail());
-        orders.setPhone(addressBook.getPhone());
-        orders.setConsignee(addressBook.getConsignee());
-        orders.setUserId(userId);
-        // 向订单表插入1条数据
-        orderMapper.addOrders(orders);
-
-        // 构造订单明细对象
-        List<OrdersDetailEntity> ordersDetailList = new ArrayList<>();
-        for (ShoppingCartEntity cart : shoppingCartList) {
-            OrdersDetailEntity ordersDetail = new OrdersDetailEntity();
-            BeanUtils.copyProperties(cart, ordersDetail);
-            // 设置当前订单明细关联的订单id
-            ordersDetail.setOrderId(orders.getId());
-            ordersDetailList.add(ordersDetail);
-        }
-        // 向订单明细表插入n条数据
-        orderDetailMapper.addOrdersDetailBatch(ordersDetailList);
-
-        // 提交订单后清空购物车数据
-        shoppingCartMapper.deleteShoppingCartByUserId(userId);
-        // 返回封装对象vo
-        return OrderSubmitVO.builder()
-                .id(orders.getId())
-                .orderTime(orders.getOrderTime())
-                .orderNumber(orders.getNumber())
-                .orderAmount(new BigDecimal(orders.getAmount()))
-                .build();
-    }
+    // 百度地图地理编码服务的URL
+    private static final String BAIDU_GEOCODING_URL = "https://api.map.baidu.com/geocoding/v3";
 
     /**
      * 处理订单支付流程。
@@ -509,5 +447,175 @@ public class OrderServiceImpl implements OrderService {
         ).toList();
         // 将所有菜品信息合并为一个字符串
         return String.join(",", orderDishList);
+    }
+
+    // 百度地图路径规划服务的URL
+    private static final String BAIDU_DIRECTION_URL = "https://api.map.baidu.com/directionlite/v1/driving";
+    // 商家地址
+    @Value("${sky.shop.address}")
+    private String shopAddress;
+    // 百度地图API密钥
+    @Value("${sky.baidu.ak}")
+    private String ak;
+
+    /**
+     * 用户下单
+     *
+     * @param orderSubmitDTO 用户下单需要提交的数据
+     * @return 订单提交成功返回的VO
+     * @throws AddressBookBusinessException  如果地址信息不存在，则抛出地址簿业务异常。
+     * @throws ShoppingCartBusinessException 如果购物车信息为空，则抛出购物车业务异常。
+     */
+    @Transactional
+    @Override
+    public OrderSubmitVO orderSubmit(OrderSubmitDTO orderSubmitDTO) {
+
+        // 处理异常情况
+        // 处理地址信息异常
+        AddressBookEntity addressBook = addressBookMapper.getAddressBookById(Long.valueOf(orderSubmitDTO.getAddressBookId()));
+        if (addressBook == null) {
+            throw new AddressBookBusinessException(MessageConstant.ADDRESS_BOOK_IS_NULL);
+        }
+
+        // 检查用户的收货地址是否超出配送范围
+        checkOutOfRange(addressBook.getCityName() + addressBook.getDistrictName() + addressBook.getDetail());
+
+        // 获取用户id
+        Long userId = BaseContext.getCurrentId();
+
+        // 处理购物车数据为空异常
+        ShoppingCartEntity shoppingCart = new ShoppingCartEntity();
+        shoppingCart.setUserId(userId);
+        List<ShoppingCartEntity> shoppingCartList = shoppingCartMapper.queryShoppingCarts(shoppingCart);
+        if (shoppingCartList == null || shoppingCartList.isEmpty()) {
+            throw new ShoppingCartBusinessException(MessageConstant.SHOPPING_CART_IS_NULL);
+        }
+
+        // 构造订单对象
+        OrdersEntity orders = new OrdersEntity();
+        BeanUtils.copyProperties(orderSubmitDTO, orders);
+        orders.setOrderTime(LocalDateTime.now());
+        orders.setPayStatus(OrdersEntity.UN_PAID);
+        orders.setStatus(OrdersEntity.PENDING_PAYMENT);
+        orders.setNumber(String.valueOf(System.currentTimeMillis()));
+        orders.setAddress(addressBook.getDetail());
+        orders.setPhone(addressBook.getPhone());
+        orders.setConsignee(addressBook.getConsignee());
+        orders.setUserId(userId);
+        // 向订单表插入1条数据
+        orderMapper.addOrders(orders);
+
+        // 构造订单明细对象
+        List<OrdersDetailEntity> ordersDetailList = new ArrayList<>();
+        for (ShoppingCartEntity cart : shoppingCartList) {
+            OrdersDetailEntity ordersDetail = new OrdersDetailEntity();
+            BeanUtils.copyProperties(cart, ordersDetail);
+            // 设置当前订单明细关联的订单id
+            ordersDetail.setOrderId(orders.getId());
+            ordersDetailList.add(ordersDetail);
+        }
+        // 向订单明细表插入n条数据
+        orderDetailMapper.addOrdersDetailBatch(ordersDetailList);
+
+        // 提交订单后清空购物车数据
+        shoppingCartMapper.deleteShoppingCartByUserId(userId);
+        // 返回封装对象vo
+        return OrderSubmitVO.builder()
+                .id(orders.getId())
+                .orderTime(orders.getOrderTime())
+                .orderNumber(orders.getNumber())
+                .orderAmount(new BigDecimal(orders.getAmount()))
+                .build();
+    }
+
+    /**
+     * 检查客户的收货地址是否超出配送范围。
+     * 通过获取商店和用户地址的经纬度，计算两者之间的驾驶距离来判断地址是否超出配送范围。
+     * 如果任一地址的经纬度获取失败，或者计算出的距离超过5000米，则认为地址超出配送范围。
+     *
+     * @param address 客户的收货地址。
+     * @throws OrderBusinessException 如果地址解析失败或地址超出配送范围，则抛出此异常。
+     */
+    private void checkOutOfRange(String address) {
+        // 获取商店的经纬度
+        String shopLngLat = getCoordinates(shopAddress);
+        // 获取用户地址的经纬度
+        String userLngLat = getCoordinates(address);
+
+        // 检查是否成功获取到经纬度，如果任一经纬度获取失败，则抛出异常
+        if (shopLngLat == null || userLngLat == null) {
+            throw new OrderBusinessException("地址解析失败");
+        }
+
+        // 计算商店和用户地址之间的驾驶距离
+        int distance = getDrivingDistance(shopLngLat, userLngLat);
+
+        // 检查距离是否超过5000米，如果超过，则抛出异常
+        if (distance > 5000) {
+            throw new OrderBusinessException("超出配送范围");
+        }
+    }
+
+
+    /**
+     * 根据给定的地址获取其对应的经纬度信息。
+     * 本方法通过调用百度地图API，将地址转换为经纬度坐标。
+     *
+     * @param address 需要转换的地址字符串。
+     * @return 返回包含经纬度的字符串，格式为"经度,纬度"。如果转换失败，则返回null。
+     */
+    private String getCoordinates(String address) {
+        // 构建请求参数映射，包含地址、输出格式和API密钥。
+        Map<String, Object> params = new HashMap<>();
+        params.put("address", address);
+        params.put("output", "json");
+        params.put("ak", ak);
+
+        // 发起GET请求，获取百度地图API返回的JSON字符串。
+        String coordinateJson = HttpClientUtil.doGet(BAIDU_GEOCODING_URL, params);
+        // 解析JSON字符串，获取响应对象。
+        JSONObject jsonObject = JSON.parseObject(coordinateJson);
+
+        // 检查API返回的状态码，非"0"表示请求失败。
+        if (!"0".equals(jsonObject.getString("status"))) {
+            return null; // 或者抛出异常
+        }
+
+        // 从响应对象中提取位置信息对象。
+        JSONObject location = jsonObject.getJSONObject("result").getJSONObject("location");
+        // 组合经度和纬度，返回经纬度字符串。
+        return location.getString("lng") + "," + location.getString("lat");
+    }
+
+
+    /**
+     * 计算两点之间的驾车距离。
+     * 通过调用百度地图API，根据起始点和目的地的经纬度坐标获取驾车路线信息，并提取其中的距离值。
+     *
+     * @param origin      起始点的经纬度坐标，格式为"纬度,经度"。
+     * @param destination 目的地的经纬度坐标，格式为"纬度,经度"。
+     * @return 两点之间的驾车距离，单位为米。
+     * @throws OrderBusinessException 如果调用百度地图API失败或返回的状态非"0"，抛出此异常。
+     */
+    private int getDrivingDistance(String origin, String destination) {
+        // 构建请求参数，包括起始点、目的地和是否需要步行步骤信息。
+        Map<String, Object> params = new HashMap<>();
+        params.put("origin", origin);
+        params.put("destination", destination);
+        params.put("steps_info", "0");
+
+        // 调用HttpClientUtil的doGet方法，向百度地图API发送请求，并获取响应结果。
+        String json = HttpClientUtil.doGet(BAIDU_DIRECTION_URL, params);
+        JSONObject jsonObject = JSON.parseObject(json);
+
+        // 检查API响应的状态，如果不为"0"，表示请求失败，抛出异常。
+        if (!"0".equals(jsonObject.getString("status"))) {
+            throw new OrderBusinessException("配送路线规划失败");
+        }
+
+        // 从响应结果中提取路线信息，并获取第一条路线的距离。
+        JSONObject result = jsonObject.getJSONObject("result");
+        JSONArray routes = result.getJSONArray("routes");
+        return ((JSONObject) routes.get(0)).getIntValue("distance");
     }
 }
