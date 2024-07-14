@@ -21,6 +21,7 @@ import com.wh.vo.OrderPaymentVO;
 import com.wh.vo.OrderStatisticsVO;
 import com.wh.vo.OrderSubmitVO;
 import com.wh.vo.OrdersVO;
+import com.wh.websocket.WebSocketServer;
 import io.jsonwebtoken.lang.Collections;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Value;
@@ -43,14 +44,16 @@ public class OrderServiceImpl implements OrderService {
     private final ShoppingCartMapper shoppingCartMapper;
     private final UserMapper userMapper;
     private final WeChatPayUtil weChatPayUtil;
+    private final WebSocketServer webSocketServer;
 
-    public OrderServiceImpl(OrderMapper orderMapper, OrderDetailMapper orderDetailMapper, AddressBookMapper addressBookMapper, ShoppingCartMapper shoppingCartMapper, UserMapper userMapper, WeChatPayUtil weChatPayUtil) {
+    public OrderServiceImpl(OrderMapper orderMapper, OrderDetailMapper orderDetailMapper, AddressBookMapper addressBookMapper, ShoppingCartMapper shoppingCartMapper, UserMapper userMapper, WeChatPayUtil weChatPayUtil, WebSocketServer webSocketServer) {
         this.orderMapper = orderMapper;
         this.orderDetailMapper = orderDetailMapper;
         this.addressBookMapper = addressBookMapper;
         this.shoppingCartMapper = shoppingCartMapper;
         this.userMapper = userMapper;
         this.weChatPayUtil = weChatPayUtil;
+        this.webSocketServer = webSocketServer;
     }
 
 
@@ -112,6 +115,16 @@ public class OrderServiceImpl implements OrderService {
 
         // 更新订单状态
         orderMapper.updateOrders(orders);
+
+        // 准备消息内容，用于通知所有客户端订单支付成功
+        HashMap<String, Object> map = new HashMap<>();
+        // 消息类型，1为来单提醒， 2为客户催单
+        map.put("type", 1);
+        map.put("orderId", orders.getId());
+        map.put("content", "订单号：" + outTradeNo);
+
+        // 将消息发送给所有客户端
+        webSocketServer.sendToAllClient(JSON.toJSONString(map));
     }
 
     /**
