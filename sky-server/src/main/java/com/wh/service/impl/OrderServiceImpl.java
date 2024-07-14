@@ -418,6 +418,28 @@ public class OrderServiceImpl implements OrderService {
         orderMapper.updateOrders(orders);
     }
 
+    /**
+     * 用户催单
+     *
+     * @param id 订单id
+     */
+    @Override
+    public void reminder4User(Long id) {
+        // 查询订单是否存在
+        OrdersEntity orderDB = orderMapper.getOrdersById(id);
+        if (orderDB == null) {
+            throw new OrderBusinessException(MessageConstant.ORDER_NOT_FOUND);
+        }
+
+        // 基于WebSocket发送消息给用户
+        HashMap<String, Object> map = new HashMap<>();
+        map.put("type", 2);
+        map.put("orderId", id);
+        map.put("content", "订单号：" + orderDB.getNumber());
+
+        webSocketServer.sendToAllClient(JSON.toJSONString(map));
+    }
+
 
     /**
      * 根据分页对象转换为订单视图对象列表。
