@@ -8,6 +8,7 @@ import org.apache.ibatis.annotations.Select;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 订单mapper接口
@@ -74,4 +75,12 @@ public interface OrderMapper {
      */
     @Select("select * from orders where status = #{status} and order_time < #{orderTime}")
     List<OrdersEntity> getOrdersByStatusAndOrderTimeLT(Integer status, LocalDateTime orderTime);
+
+    /**
+     * 根据条件查询营业额
+     *
+     * @param map 查询条件map集合
+     * @return 营业额
+     */
+    Double sumTurnoverByMap(Map<String, Object> map);
 }
