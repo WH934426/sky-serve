@@ -4,6 +4,8 @@ import com.wh.entity.UserEntity;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 
+import java.util.Map;
+
 /**
  * 用户接口
  */
@@ -34,4 +36,12 @@ public interface UserMapper {
      */
     @Select("select * from user where id=#{id}")
     UserEntity getUserById(Long userId);
+
+    /**
+     * 根据条件查询用户
+     *
+     * @param map 查询条件map集合
+     * @return 用户数量
+     */
+    Integer sumUserByMap(Map<String, Object> map);
 }

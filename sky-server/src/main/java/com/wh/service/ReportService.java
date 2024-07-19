@@ -1,6 +1,7 @@
 package com.wh.service;
 
 import com.wh.vo.TurnoverReportVO;
+import com.wh.vo.UserReportVO;
 
 import java.time.LocalDate;
 
@@ -17,4 +18,13 @@ public interface ReportService {
      * @return 营业额报表数据
      */
     TurnoverReportVO getTurnoverByTime(LocalDate begin, LocalDate end);
+
+    /**
+     * 根据时间区间统计用户数据
+     *
+     * @param begin 开始时间
+     * @param end   结束时间
+     * @return 用户数据
+     */
+    UserReportVO getUserByTime(LocalDate begin, LocalDate end);
 }
