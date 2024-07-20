@@ -166,8 +166,8 @@ public class ReportServiceImpl implements ReportService {
 
             // 用于存储查询条件的Map
             Map<String, Object> map = new HashMap<>();
-            map.put("begin", begin);
-            map.put("end", end);
+            map.put("begin", beginTime);
+            map.put("end", endTime);
 
             // 统计当天所有订单的数量
             Integer orderCont = orderMapper.sumOrderByMap(map);
@@ -181,8 +181,8 @@ public class ReportServiceImpl implements ReportService {
         }
 
         // 计算总订单数量和有效订单数量
-        Integer totalOrderCount = orderCountList.stream().reduce(Integer::sum).get();
-        Integer validOrderCount = validOrderCountList.stream().reduce(Integer::sum).get();
+        Integer totalOrderCount = orderCountList.stream().reduce(0, Integer::sum);
+        Integer validOrderCount = validOrderCountList.stream().reduce(0, Integer::sum);
 
         // 计算订单完成率，如果总订单数量为0，则订单完成率为0
         double orderCompletionRate = 0.0;
