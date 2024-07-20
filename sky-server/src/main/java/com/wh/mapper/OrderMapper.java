@@ -1,6 +1,7 @@
 package com.wh.mapper;
 
 import com.github.pagehelper.Page;
+import com.wh.dto.GoodsSalesDTO;
 import com.wh.dto.OrderPageQueryDTO;
 import com.wh.entity.OrdersEntity;
 import org.apache.ibatis.annotations.Mapper;
@@ -91,4 +92,13 @@ public interface OrderMapper {
      * @return 订单数量
      */
     Integer sumOrderByMap(Map<String, Object> map);
+
+    /**
+     * 查询销量排名top10
+     *
+     * @param begin 开始时间
+     * @param end   结束时间
+     * @return 销量排名前10的商品名和销量列表
+     */
+    List<GoodsSalesDTO> getSalesTop10ByTime(LocalDateTime begin, LocalDateTime end);
 }

@@ -1,10 +1,12 @@
 package com.wh.service.impl;
 
+import com.wh.dto.GoodsSalesDTO;
 import com.wh.entity.OrdersEntity;
 import com.wh.mapper.OrderMapper;
 import com.wh.mapper.UserMapper;
 import com.wh.service.ReportService;
 import com.wh.vo.OrderReportVO;
+import com.wh.vo.SalesTop10ReportVO;
 import com.wh.vo.TurnoverReportVO;
 import com.wh.vo.UserReportVO;
 import lombok.extern.slf4j.Slf4j;
@@ -198,6 +200,35 @@ public class ReportServiceImpl implements ReportService {
                 .totalOrderCount(totalOrderCount)
                 .validOrderCount(validOrderCount)
                 .orderCompletionRate(orderCompletionRate)
+                .build();
+    }
+
+    /**
+     * 查询指定时间区间内的销量排名top10
+     *
+     * @param begin 开始时间
+     * @param end   结束时间
+     * @return 销量排名top10的商品
+     */
+    @Override
+    public SalesTop10ReportVO getSalesTop10ByTime(LocalDate begin, LocalDate end) {
+        // 构造每日的开始时间和结束时间，用于查询订单
+        LocalDateTime beginTime = LocalDateTime.of(begin, LocalTime.MIN);
+        LocalDateTime endTime = LocalDateTime.of(end, LocalTime.MAX);
+
+        // 查询商品
+        List<GoodsSalesDTO> top10 = orderMapper.getSalesTop10ByTime(beginTime, endTime);
+        // 将商品名称列表转换为字符串，以逗号分隔
+        List<String> names = top10.stream().map(GoodsSalesDTO::getName).toList();
+        String nameList = StringUtils.join(names, ",");
+        // 将商品销售数量列表转换为字符串，以逗号分隔
+        List<Integer> numbers = top10.stream().map(GoodsSalesDTO::getNumber).toList();
+        String numberList = StringUtils.join(numbers, ",");
+
+
+        return SalesTop10ReportVO.builder()
+                .nameList(nameList)
+                .numberList(numberList)
                 .build();
     }
 }

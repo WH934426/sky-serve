@@ -1,6 +1,7 @@
 package com.wh.service;
 
 import com.wh.vo.OrderReportVO;
+import com.wh.vo.SalesTop10ReportVO;
 import com.wh.vo.TurnoverReportVO;
 import com.wh.vo.UserReportVO;
 
@@ -37,4 +38,13 @@ public interface ReportService {
      * @return 订单数据
      */
     OrderReportVO getOrderByTime(LocalDate begin, LocalDate end);
+
+    /**
+     * 查询指定时间区间内的销量排名top10
+     *
+     * @param begin 开始时间
+     * @param end   结束时间
+     * @return 销量排名top10的商品
+     */
+    SalesTop10ReportVO getSalesTop10ByTime(LocalDate begin, LocalDate end);
 }
