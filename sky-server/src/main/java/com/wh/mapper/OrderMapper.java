@@ -83,4 +83,12 @@ public interface OrderMapper {
      * @return 营业额
      */
     Double sumTurnoverByMap(Map<String, Object> map);
+
+    /**
+     * 根据条件查询订单数量
+     *
+     * @param map 查询条件map集合
+     * @return 订单数量
+     */
+    Integer sumOrderByMap(Map<String, Object> map);
 }

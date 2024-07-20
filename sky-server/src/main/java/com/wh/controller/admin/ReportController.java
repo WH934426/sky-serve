@@ -2,6 +2,7 @@ package com.wh.controller.admin;
 
 import com.wh.result.Result;
 import com.wh.service.ReportService;
+import com.wh.vo.OrderReportVO;
 import com.wh.vo.TurnoverReportVO;
 import com.wh.vo.UserReportVO;
 import jakarta.annotation.Resource;
@@ -46,10 +47,26 @@ public class ReportController {
      * @param end   结束时间
      * @return 某个时间区间的用户数量
      */
+    @GetMapping("/userStatistics")
     public Result<UserReportVO> statistics4User(@DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate begin,
                                                 @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate end) {
         log.info("统计用户量的时间:{},{}", begin, end);
         UserReportVO userReportVO = reportService.getUserByTime(begin, end);
         return Result.success(userReportVO);
+    }
+
+    /**
+     * 订单统计
+     *
+     * @param begin 开始时间
+     * @param end   结束时间
+     * @return 某个时间区间的订单数量
+     */
+    @GetMapping("/ordersStatistics")
+    public Result<OrderReportVO> statistics4Order(@DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate begin,
+                                                  @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate end) {
+        log.info("统计订单量的时间:{},{}", begin, end);
+        OrderReportVO orderReportVO = reportService.getOrderByTime(begin, end);
+        return Result.success(orderReportVO);
     }
 }

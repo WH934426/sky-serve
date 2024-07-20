@@ -4,6 +4,7 @@ import com.wh.entity.OrdersEntity;
 import com.wh.mapper.OrderMapper;
 import com.wh.mapper.UserMapper;
 import com.wh.service.ReportService;
+import com.wh.vo.OrderReportVO;
 import com.wh.vo.TurnoverReportVO;
 import com.wh.vo.UserReportVO;
 import lombok.extern.slf4j.Slf4j;
@@ -133,6 +134,70 @@ public class ReportServiceImpl implements ReportService {
                 .dateList(StringUtils.join(dateList, ","))
                 .newUserList(StringUtils.join(newUserList, ","))
                 .totalUserList(StringUtils.join(totalUserList, ","))
+                .build();
+    }
+
+    /**
+     * 根据时间区间统计订单数据
+     *
+     * @param begin 开始时间
+     * @param end   结束时间
+     * @return 订单数据
+     */
+    @Override
+    public OrderReportVO getOrderByTime(LocalDate begin, LocalDate end) {
+        // 初始化日期列表，用于存储从开始日期到结束日期的所有日期
+        List<LocalDate> dateList = new ArrayList<>();
+        dateList.add(begin);
+
+        // 通过循环将起始日期到结束日期之间的所有日期添加到日期列表中
+        while (!begin.equals(end)) {
+            begin = begin.plusDays(1);
+            dateList.add(begin);
+        }
+        // 初始化两个列表，分别用于存储每天的订单数量和有效订单数量
+        List<Integer> orderCountList = new ArrayList<>();
+        List<Integer> validOrderCountList = new ArrayList<>();
+
+        for (LocalDate date : dateList) {
+            // 构造每日的开始时间和结束时间，用于查询订单
+            LocalDateTime beginTime = LocalDateTime.of(date, LocalTime.MIN);
+            LocalDateTime endTime = LocalDateTime.of(date, LocalTime.MAX);
+
+            // 用于存储查询条件的Map
+            Map<String, Object> map = new HashMap<>();
+            map.put("begin", begin);
+            map.put("end", end);
+
+            // 统计当天所有订单的数量
+            Integer orderCont = orderMapper.sumOrderByMap(map);
+            // 更新查询条件，统计当天已完成的订单数量
+            map.put("status", OrdersEntity.COMPLETED);
+            Integer validOrderCount = orderMapper.sumOrderByMap(map);
+
+            // 将每天的订单数量和有效订单数量添加到对应的列表中
+            orderCountList.add(orderCont);
+            validOrderCountList.add(validOrderCount);
+        }
+
+        // 计算总订单数量和有效订单数量
+        Integer totalOrderCount = orderCountList.stream().reduce(Integer::sum).get();
+        Integer validOrderCount = validOrderCountList.stream().reduce(Integer::sum).get();
+
+        // 计算订单完成率，如果总订单数量为0，则订单完成率为0
+        double orderCompletionRate = 0.0;
+        if (totalOrderCount != 0) {
+            orderCompletionRate = validOrderCount.doubleValue() / totalOrderCount;
+        }
+
+
+        return OrderReportVO.builder()
+                .dateList(StringUtils.join(dateList, ","))
+                .orderCountList(StringUtils.join(orderCountList, ","))
+                .validOrderCountList(StringUtils.join(validOrderCountList, ","))
+                .totalOrderCount(totalOrderCount)
+                .validOrderCount(validOrderCount)
+                .orderCompletionRate(orderCompletionRate)
                 .build();
     }
 }

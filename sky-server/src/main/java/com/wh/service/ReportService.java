@@ -1,5 +1,6 @@
 package com.wh.service;
 
+import com.wh.vo.OrderReportVO;
 import com.wh.vo.TurnoverReportVO;
 import com.wh.vo.UserReportVO;
 
@@ -27,4 +28,13 @@ public interface ReportService {
      * @return 用户数据
      */
     UserReportVO getUserByTime(LocalDate begin, LocalDate end);
+
+    /**
+     * 根据时间区间统计订单数据
+     *
+     * @param begin 开始时间
+     * @param end   结束时间
+     * @return 订单数据
+     */
+    OrderReportVO getOrderByTime(LocalDate begin, LocalDate end);
 }
