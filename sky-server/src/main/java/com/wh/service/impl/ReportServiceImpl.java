@@ -47,15 +47,7 @@ public class ReportServiceImpl implements ReportService {
      */
     @Override
     public TurnoverReportVO getTurnoverByTime(LocalDate begin, LocalDate end) {
-        // 初始化日期列表，用于存储查询范围内的所有日期
-        List<LocalDate> dateList = new ArrayList<>();
-        dateList.add(begin);
-
-        // 通过循环将起始日期到结束日期之间的所有日期添加到日期列表中
-        while (!begin.equals(end)) {
-            begin = begin.plusDays(1);
-            dateList.add(begin);
-        }
+        List<LocalDate> dateList = generateDateList(begin, end);
 
         // 初始化营业额列表，用于存储每个日期的营业额
         List<Double> turnoverList = new ArrayList<>();
@@ -67,10 +59,7 @@ public class ReportServiceImpl implements ReportService {
             LocalDateTime endTime = LocalDateTime.of(date, LocalTime.MAX);
 
             // 构建查询参数映射，指定查询的订单状态为已完成
-            Map<String, Object> map = new HashMap<>();
-            map.put("begin", beginTime);
-            map.put("end", endTime);
-            map.put("status", OrdersEntity.COMPLETED);
+            Map<String, Object> map = prepareQueryMap(beginTime, endTime, OrdersEntity.COMPLETED);
 
             // 查询指定日期内的订单总金额
             Double turnover = orderMapper.sumTurnoverByMap(map);
@@ -97,15 +86,7 @@ public class ReportServiceImpl implements ReportService {
      */
     @Override
     public UserReportVO getUserByTime(LocalDate begin, LocalDate end) {
-        // 初始化日期列表，用于存储从开始日期到结束日期的所有日期
-        List<LocalDate> dateList = new ArrayList<>();
-        dateList.add(begin);
-
-        // 通过循环将起始日期到结束日期之间的所有日期添加到日期列表中
-        while (!begin.equals(end)) {
-            begin = begin.plusDays(1);
-            dateList.add(begin);
-        }
+        List<LocalDate> dateList = generateDateList(begin, end);
 
         // 初始化新用户数列表和总用户数列表
         List<Integer> newUserList = new ArrayList<>();
@@ -117,14 +98,13 @@ public class ReportServiceImpl implements ReportService {
             LocalDateTime beginTime = LocalDateTime.of(date, LocalTime.MIN);
             LocalDateTime endTime = LocalDateTime.of(date, LocalTime.MAX);
 
-            // 使用Map存储查询条件，先查询当天的新用户数
-            Map<String, Object> map = new HashMap<>();
-            map.put("end", endTime);
-            Integer newUser = userMapper.sumUserByMap(map);
+            // 查询当天的新用户数
+            Map<String, Object> newUserMap = prepareQueryMap(null, endTime, null);
+            Integer newUser = userMapper.sumUserByMap(newUserMap);
 
-            // 更新Map中的查询条件，查询当天的总用户数
-            map.put("begin", beginTime);
-            Integer totalUser = userMapper.sumUserByMap(map);
+            // 查询当天的总用户数
+            Map<String, Object> totalUserMap = prepareQueryMap(beginTime, endTime, null);
+            Integer totalUser = userMapper.sumUserByMap(totalUserMap);
 
             // 将新用户数和总用户数添加到对应的列表中
             newUserList.add(newUser);
@@ -148,15 +128,8 @@ public class ReportServiceImpl implements ReportService {
      */
     @Override
     public OrderReportVO getOrderByTime(LocalDate begin, LocalDate end) {
-        // 初始化日期列表，用于存储从开始日期到结束日期的所有日期
-        List<LocalDate> dateList = new ArrayList<>();
-        dateList.add(begin);
+        List<LocalDate> dateList = generateDateList(begin, end);
 
-        // 通过循环将起始日期到结束日期之间的所有日期添加到日期列表中
-        while (!begin.equals(end)) {
-            begin = begin.plusDays(1);
-            dateList.add(begin);
-        }
         // 初始化两个列表，分别用于存储每天的订单数量和有效订单数量
         List<Integer> orderCountList = new ArrayList<>();
         List<Integer> validOrderCountList = new ArrayList<>();
@@ -167,9 +140,7 @@ public class ReportServiceImpl implements ReportService {
             LocalDateTime endTime = LocalDateTime.of(date, LocalTime.MAX);
 
             // 用于存储查询条件的Map
-            Map<String, Object> map = new HashMap<>();
-            map.put("begin", beginTime);
-            map.put("end", endTime);
+            Map<String, Object> map = prepareQueryMap(beginTime, endTime, null);
 
             // 统计当天所有订单的数量
             Integer orderCont = orderMapper.sumOrderByMap(map);
@@ -230,5 +201,41 @@ public class ReportServiceImpl implements ReportService {
                 .nameList(nameList)
                 .numberList(numberList)
                 .build();
+    }
+
+    /**
+     * 生成指定开始和结束日期之间的日期列表，包括开始和结束日期。
+     *
+     * @param begin 开始日期，包含在列表中。
+     * @param end   结束日期，包含在列表中。
+     * @return 一个LocalDate类型的列表，包含了从开始日期到结束日期之间的所有日期。
+     */
+    private List<LocalDate> generateDateList(LocalDate begin, LocalDate end) {
+        // 初始化一个空的日期列表
+        List<LocalDate> dateList = new ArrayList<>();
+        // 从开始日期开始循环，直到日期大于结束日期
+        for (LocalDate date = begin; !date.isAfter(end); date = date.plusDays(1)) {
+            // 将当前日期添加到列表中
+            dateList.add(date);
+        }
+        // 返回包含所有日期的列表
+        return dateList;
+    }
+
+
+    /**
+     * 构建查询条件
+     *
+     * @param begin  开始时间
+     * @param end    结束时间
+     * @param status 订单状态
+     * @return 查询条件map集合
+     */
+    private Map<String, Object> prepareQueryMap(LocalDateTime begin, LocalDateTime end, Integer status) {
+        Map<String, Object> map = new HashMap<>();
+        map.put("begin", begin);
+        map.put("end", end);
+        map.put("status", status);
+        return map;
     }
 }
