@@ -12,6 +12,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 套餐接口
@@ -84,4 +85,12 @@ public interface SetmealMapper {
      * @return 菜品选项列表
      */
     List<DishItemVO> getDishItemBySetmealId(Long setmealId);
+
+    /**
+     * 根据条件统计套餐数量
+     *
+     * @param map 查询条件map集合
+     * @return 套餐数量
+     */
+    Integer sumSetmealByMap(Map<String, Object> map);
 }

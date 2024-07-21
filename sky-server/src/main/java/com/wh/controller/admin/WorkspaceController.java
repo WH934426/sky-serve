@@ -5,6 +5,7 @@ import com.wh.service.WorkspaceService;
 import com.wh.vo.BusinessDataVO;
 import com.wh.vo.DishDataVO;
 import com.wh.vo.OrderDataVO;
+import com.wh.vo.SetmealDataVO;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -57,5 +58,15 @@ public class WorkspaceController {
     @GetMapping("/overviewDishes")
     public Result<DishDataVO> getDishData() {
         return Result.success(workspaceService.getDishOverViewData());
+    }
+
+    /**
+     * 查询套餐管理数据
+     *
+     * @return 套餐管理数据
+     */
+    @GetMapping("/overviewSetmeals")
+    public Result<SetmealDataVO> getSetmealData() {
+        return Result.success(workspaceService.getSetmealOverViewData());
     }
 }

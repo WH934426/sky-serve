@@ -3,6 +3,7 @@ package com.wh.service;
 import com.wh.vo.BusinessDataVO;
 import com.wh.vo.DishDataVO;
 import com.wh.vo.OrderDataVO;
+import com.wh.vo.SetmealDataVO;
 
 import java.time.LocalDateTime;
 
@@ -33,4 +34,11 @@ public interface WorkspaceService {
      * @return 菜品数据
      */
     DishDataVO getDishOverViewData();
+
+    /**
+     * 获取套餐数据
+     *
+     * @return 套餐数据
+     */
+    SetmealDataVO getSetmealOverViewData();
 }

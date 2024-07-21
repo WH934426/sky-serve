@@ -5,11 +5,13 @@ import com.wh.constant.StatusConstant;
 import com.wh.entity.OrdersEntity;
 import com.wh.mapper.DishMapper;
 import com.wh.mapper.OrderMapper;
+import com.wh.mapper.SetmealMapper;
 import com.wh.mapper.UserMapper;
 import com.wh.service.WorkspaceService;
 import com.wh.vo.BusinessDataVO;
 import com.wh.vo.DishDataVO;
 import com.wh.vo.OrderDataVO;
+import com.wh.vo.SetmealDataVO;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -25,12 +27,14 @@ public class WorkspaceServiceImpl implements WorkspaceService {
     private final OrderMapper orderMapper;
     private final UserMapper userMapper;
     private final DishMapper dishMapper;
+    private final SetmealMapper setmealMapper;
 
 
-    public WorkspaceServiceImpl(OrderMapper orderMapper, UserMapper userMapper, DishMapper dishMapper) {
+    public WorkspaceServiceImpl(OrderMapper orderMapper, UserMapper userMapper, DishMapper dishMapper, SetmealMapper setmealMapper) {
         this.orderMapper = orderMapper;
         this.userMapper = userMapper;
         this.dishMapper = dishMapper;
+        this.setmealMapper = setmealMapper;
     }
 
     /**
@@ -141,6 +145,29 @@ public class WorkspaceServiceImpl implements WorkspaceService {
         Integer discontinued = dishMapper.sumDishByMap(map);
 
         return DishDataVO.builder()
+                .discontinued(discontinued)
+                .sold(sold)
+                .build();
+    }
+
+    /**
+     * 获取套餐数据
+     *
+     * @return 套餐数据
+     */
+    @Override
+    public SetmealDataVO getSetmealOverViewData() {
+        Map<String, Object> map = new HashMap<>();
+
+        // 统计启用状态的套餐总数
+        map.put("status", StatusConstant.ENABLE);
+        Integer sold = setmealMapper.sumSetmealByMap(map);
+
+        // 统计停用状态的套餐总数
+        map.put("status", StatusConstant.DISABLE);
+        Integer discontinued = setmealMapper.sumSetmealByMap(map);
+
+        return SetmealDataVO.builder()
                 .discontinued(discontinued)
                 .sold(sold)
                 .build();
