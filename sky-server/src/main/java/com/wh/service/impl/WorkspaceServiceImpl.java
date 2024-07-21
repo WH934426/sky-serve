@@ -6,6 +6,7 @@ import com.wh.mapper.OrderMapper;
 import com.wh.mapper.UserMapper;
 import com.wh.service.WorkspaceService;
 import com.wh.vo.BusinessDataVO;
+import com.wh.vo.OrderDataVO;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -72,6 +73,48 @@ public class WorkspaceServiceImpl implements WorkspaceService {
                 .turnover(turnover)
                 .unitPrice(unitPrice)
                 .validOrderCount(validOrderCount)
+                .build();
+    }
+
+    /**
+     * 获取订单数据
+     *
+     * @return 订单数据
+     */
+    @Override
+    public OrderDataVO getOrderOverViewData() {
+        // 初始化开始时间，用于统计所有订单
+        LocalDateTime begin = LocalDateTime.now().with(LocalDateTime.MIN);
+        Map<String, Object> map = new HashMap<>();
+        map.put("begin", begin);
+        map.put("status", OrdersEntity.TO_BE_CONFIRMED);
+
+        // 待接单
+        Integer waitingOrders = orderMapper.sumOrderByMap(map);
+
+        // 待派送
+        map.put("status", OrdersEntity.CONFIRMED);
+        Integer deliveredOrders = orderMapper.sumOrderByMap(map);
+
+        // 已完成
+        map.put("status", OrdersEntity.COMPLETED);
+        Integer completedOrders = orderMapper.sumOrderByMap(map);
+
+        // 已取消
+        map.put("status", OrdersEntity.CANCELLED);
+        Integer cancelledOrders = orderMapper.sumOrderByMap(map);
+
+        // 全部订单
+        map.put("status", null);
+        Integer allOrders = orderMapper.sumOrderByMap(map);
+        
+        // 根据查询结果构建并返回订单概况数据对象
+        return OrderDataVO.builder()
+                .waitingOrders(waitingOrders)
+                .deliveredOrders(deliveredOrders)
+                .completedOrders(completedOrders)
+                .cancelledOrders(cancelledOrders)
+                .allOrders(allOrders)
                 .build();
     }
 }

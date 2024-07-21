@@ -1,6 +1,7 @@
 package com.wh.service;
 
 import com.wh.vo.BusinessDataVO;
+import com.wh.vo.OrderDataVO;
 
 import java.time.LocalDateTime;
 
@@ -17,4 +18,11 @@ public interface WorkspaceService {
      * @return 今日营业数据
      */
     BusinessDataVO getBusinessData(LocalDateTime beginTime, LocalDateTime endTime);
+
+    /**
+     * 获取订单数据
+     *
+     * @return 订单数据
+     */
+    OrderDataVO getOrderOverViewData();
 }

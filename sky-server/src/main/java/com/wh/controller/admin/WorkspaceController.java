@@ -3,6 +3,7 @@ package com.wh.controller.admin;
 import com.wh.result.Result;
 import com.wh.service.WorkspaceService;
 import com.wh.vo.BusinessDataVO;
+import com.wh.vo.OrderDataVO;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -35,5 +36,15 @@ public class WorkspaceController {
         // 获取当日运营数据
         BusinessDataVO businessDataVO = workspaceService.getBusinessData(beginTime, endTime);
         return Result.success(businessDataVO);
+    }
+
+    /**
+     * 查询订单管理数据
+     *
+     * @return 订单管理数据
+     */
+    @GetMapping("/overviewOrders")
+    public Result<OrderDataVO> getOrderData() {
+        return Result.success(workspaceService.getOrderOverViewData());
     }
 }
