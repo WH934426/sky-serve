@@ -1,11 +1,14 @@
 package com.wh.service.impl;
 
 
+import com.wh.constant.StatusConstant;
 import com.wh.entity.OrdersEntity;
+import com.wh.mapper.DishMapper;
 import com.wh.mapper.OrderMapper;
 import com.wh.mapper.UserMapper;
 import com.wh.service.WorkspaceService;
 import com.wh.vo.BusinessDataVO;
+import com.wh.vo.DishDataVO;
 import com.wh.vo.OrderDataVO;
 import org.springframework.stereotype.Service;
 
@@ -21,11 +24,13 @@ public class WorkspaceServiceImpl implements WorkspaceService {
 
     private final OrderMapper orderMapper;
     private final UserMapper userMapper;
+    private final DishMapper dishMapper;
 
 
-    public WorkspaceServiceImpl(OrderMapper orderMapper, UserMapper userMapper) {
+    public WorkspaceServiceImpl(OrderMapper orderMapper, UserMapper userMapper, DishMapper dishMapper) {
         this.orderMapper = orderMapper;
         this.userMapper = userMapper;
+        this.dishMapper = dishMapper;
     }
 
     /**
@@ -107,7 +112,7 @@ public class WorkspaceServiceImpl implements WorkspaceService {
         // 全部订单
         map.put("status", null);
         Integer allOrders = orderMapper.sumOrderByMap(map);
-        
+
         // 根据查询结果构建并返回订单概况数据对象
         return OrderDataVO.builder()
                 .waitingOrders(waitingOrders)
@@ -115,6 +120,29 @@ public class WorkspaceServiceImpl implements WorkspaceService {
                 .completedOrders(completedOrders)
                 .cancelledOrders(cancelledOrders)
                 .allOrders(allOrders)
+                .build();
+    }
+
+    /**
+     * 获取菜品数据
+     *
+     * @return 菜品数据
+     */
+    @Override
+    public DishDataVO getDishOverViewData() {
+        Map<String, Object> map = new HashMap<>();
+
+        // 统计启用状态的菜品总数
+        map.put("status", StatusConstant.ENABLE);
+        Integer sold = dishMapper.sumDishByMap(map);
+
+        // 统计停用状态的菜品总数
+        map.put("status", StatusConstant.DISABLE);
+        Integer discontinued = dishMapper.sumDishByMap(map);
+
+        return DishDataVO.builder()
+                .discontinued(discontinued)
+                .sold(sold)
                 .build();
     }
 }

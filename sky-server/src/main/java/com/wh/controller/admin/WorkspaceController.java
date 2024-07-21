@@ -3,6 +3,7 @@ package com.wh.controller.admin;
 import com.wh.result.Result;
 import com.wh.service.WorkspaceService;
 import com.wh.vo.BusinessDataVO;
+import com.wh.vo.DishDataVO;
 import com.wh.vo.OrderDataVO;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
@@ -46,5 +47,15 @@ public class WorkspaceController {
     @GetMapping("/overviewOrders")
     public Result<OrderDataVO> getOrderData() {
         return Result.success(workspaceService.getOrderOverViewData());
+    }
+
+    /**
+     * 查询菜品管理数据
+     *
+     * @return 菜品管理数据
+     */
+    @GetMapping("/overviewDishes")
+    public Result<DishDataVO> getDishData() {
+        return Result.success(workspaceService.getDishOverViewData());
     }
 }

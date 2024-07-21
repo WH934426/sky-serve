@@ -11,6 +11,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 菜品接口
@@ -91,4 +92,12 @@ public interface DishMapper {
      * @return 菜品列表
      */
     List<DishEntity> getDishList(DishEntity dish);
+
+    /**
+     * 根据条件统计菜品总数
+     *
+     * @param map 查询条件map集合
+     * @return 菜品总数
+     */
+    Integer sumDishByMap(Map<String, Object> map);
 }
