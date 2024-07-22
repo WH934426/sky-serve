@@ -5,14 +5,19 @@ import com.wh.entity.OrdersEntity;
 import com.wh.mapper.OrderMapper;
 import com.wh.mapper.UserMapper;
 import com.wh.service.ReportService;
-import com.wh.vo.OrderReportVO;
-import com.wh.vo.SalesTop10ReportVO;
-import com.wh.vo.TurnoverReportVO;
-import com.wh.vo.UserReportVO;
+import com.wh.service.WorkspaceService;
+import com.wh.vo.*;
+import jakarta.servlet.ServletOutputStream;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
+import org.apache.poi.xssf.usermodel.XSSFRow;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -30,10 +35,12 @@ public class ReportServiceImpl implements ReportService {
 
     private final OrderMapper orderMapper;
     private final UserMapper userMapper;
+    private final WorkspaceService workspaceService;
 
-    public ReportServiceImpl(OrderMapper orderMapper, UserMapper userMapper) {
+    public ReportServiceImpl(OrderMapper orderMapper, UserMapper userMapper, WorkspaceService workspaceService) {
         this.orderMapper = orderMapper;
         this.userMapper = userMapper;
+        this.workspaceService = workspaceService;
     }
 
 
@@ -204,6 +211,49 @@ public class ReportServiceImpl implements ReportService {
     }
 
     /**
+     * 导出最近30天的运营数据报告。
+     * 使用Excel模板，填充数据后生成并返回给客户端。
+     *
+     * @param response HTTP响应对象，用于向客户端发送生成的Excel文件。
+     */
+    @Override
+    public void exportBusinessData(HttpServletResponse response) {
+        // 定义报告起止时间，为过去30天。
+        LocalDate beginDate = LocalDate.now().minusDays(30);
+        LocalDate endDate = LocalDate.now().minusDays(1);
+
+        // 获取最近30天的总体业务数据。
+        BusinessDataVO businessDataVO = workspaceService.getBusinessData(LocalDateTime.of(beginDate, LocalTime.MIN), LocalDateTime.of(endDate, LocalTime.MAX));
+
+        // 加载Excel模板文件。
+        InputStream in = this.getClass().getClassLoader().getResourceAsStream("template/运营数据报表模板.xlsx");
+
+        try {
+            // 基于模板初始化Excel工作簿
+            XSSFWorkbook excel = new XSSFWorkbook(in);
+            // 获取工作表。
+            XSSFSheet sheet = excel.getSheet("Sheet1");
+            // 填充报告时间范围到指定单元格。单元格从0开始
+            sheet.getRow(1).getCell(1).setCellValue("时间：" + beginDate + "至" + endDate);
+            // 填充汇总数据到工作表。
+            fillSummaryData(sheet, businessDataVO);
+            // 填充每日数据到工作表。
+            fillDailyData(sheet, businessDataVO, beginDate);
+
+            // 将处理后的Excel写入HTTP响应，供客户端下载。
+            ServletOutputStream out = response.getOutputStream();
+            excel.write(out);
+
+            // 关闭资源。
+            out.close();
+            excel.close();
+        } catch (IOException e) {
+            log.error("导出运营数据报表失败");
+        }
+    }
+
+
+    /**
      * 生成指定开始和结束日期之间的日期列表，包括开始和结束日期。
      *
      * @param begin 开始日期，包含在列表中。
@@ -237,5 +287,55 @@ public class ReportServiceImpl implements ReportService {
         map.put("end", end);
         map.put("status", status);
         return map;
+    }
+
+
+    /**
+     * 填充汇总数据到Excel表格中。
+     * 此方法负责将业务数据对象中的数据写入到Excel工作表的特定单元格中。
+     *
+     * @param sheet          Excel工作表对象，数据将被写入此工作表。
+     * @param businessDataVO 业务数据视图对象，包含需要写入Excel的汇总数据。
+     */
+    private void fillSummaryData(XSSFSheet sheet, BusinessDataVO businessDataVO) {
+        // 获取第四行（索引从0开始），用于填写营业额、完成率和新用户数
+        XSSFRow row = sheet.getRow(3);
+        row.getCell(2).setCellValue(businessDataVO.getTurnover());
+        row.getCell(4).setCellValue(businessDataVO.getOrderCompletionRate());
+        row.getCell(6).setCellValue(businessDataVO.getNewUsers());
+
+        // 获取第五行，用于填写有效订单数量和平均单价
+        row = sheet.getRow(4);
+        row.getCell(2).setCellValue(businessDataVO.getValidOrderCount());
+        row.getCell(4).setCellValue(businessDataVO.getUnitPrice());
+    }
+
+
+    /**
+     * 填充每日业务数据到Excel表格中。
+     *
+     * @param sheet          Excel表格中的工作表对象，用于数据写入。
+     * @param businessDataVO 包含业务数据的VO对象，用于读取数据。
+     * @param beginDate      填充数据的起始日期。
+     * @throws IOException 如果写入Excel时发生IO错误。
+     */
+    private void fillDailyData(XSSFSheet sheet, BusinessDataVO businessDataVO, LocalDate beginDate) throws IOException {
+        // 循环30天，填充每天的业务数据
+        for (int i = 0; i < 30; i++) {
+            // 计算当前循环的日期
+            LocalDate date = beginDate.plusDays(i);
+            // 根据日期获取当天的业务数据
+            businessDataVO = workspaceService.getBusinessData(LocalDateTime.of(date, LocalTime.MIN), LocalDateTime.of(date, LocalTime.MAX));
+
+            // 获取Excel表格中对应日期的行
+            XSSFRow row = sheet.getRow(7 + i);
+            // 填充日期、营业额、有效订单数、完成率、平均单价、新用户数
+            row.getCell(1).setCellValue(date.toString());
+            row.getCell(2).setCellValue(businessDataVO.getTurnover());
+            row.getCell(3).setCellValue(businessDataVO.getValidOrderCount());
+            row.getCell(4).setCellValue(businessDataVO.getOrderCompletionRate());
+            row.getCell(5).setCellValue(businessDataVO.getUnitPrice());
+            row.getCell(6).setCellValue(businessDataVO.getNewUsers());
+        }
     }
 }

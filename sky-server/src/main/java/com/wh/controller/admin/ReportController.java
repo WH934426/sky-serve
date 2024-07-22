@@ -7,6 +7,7 @@ import com.wh.vo.SalesTop10ReportVO;
 import com.wh.vo.TurnoverReportVO;
 import com.wh.vo.UserReportVO;
 import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -84,5 +85,15 @@ public class ReportController {
         log.info("查询销量排名前10的时间区间:{},{}", begin, end);
         SalesTop10ReportVO salesTop10ReportVO = reportService.getSalesTop10ByTime(begin, end);
         return Result.success(salesTop10ReportVO);
+    }
+
+    /**
+     * 导出运营数据报告。
+     *
+     * @param response HTTP响应对象，用于向客户端发送生成的Excel文件。
+     */
+    @GetMapping("/export")
+    public void exportBusinessData(HttpServletResponse response) {
+        reportService.exportBusinessData(response);
     }
 }

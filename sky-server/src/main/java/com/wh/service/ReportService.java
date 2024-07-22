@@ -4,6 +4,7 @@ import com.wh.vo.OrderReportVO;
 import com.wh.vo.SalesTop10ReportVO;
 import com.wh.vo.TurnoverReportVO;
 import com.wh.vo.UserReportVO;
+import jakarta.servlet.http.HttpServletResponse;
 
 import java.time.LocalDate;
 
@@ -47,4 +48,12 @@ public interface ReportService {
      * @return 销量排名top10的商品
      */
     SalesTop10ReportVO getSalesTop10ByTime(LocalDate begin, LocalDate end);
+
+    /**
+     * 导出最近30天的运营数据报告。
+     * 使用Excel模板，填充数据后生成并返回给客户端。
+     *
+     * @param response HTTP响应对象，用于向客户端发送生成的Excel文件。
+     */
+    void exportBusinessData(HttpServletResponse response);
 }

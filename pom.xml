@@ -32,6 +32,7 @@
         <jaxb-api>2.3.1</jaxb-api>
         <jjwt>0.9.1</jjwt>
         <aliyun-sdk-oss>3.10.2</aliyun-sdk-oss>
+        <poi>3.16</poi>
     </properties>
     <dependencyManagement>
         <dependencies>
@@ -90,6 +91,17 @@
                 <groupId>com.github.wechatpay-apiv3</groupId>
                 <artifactId>wechatpay-apache-httpclient</artifactId>
                 <version>0.4.8</version>
+            </dependency>
+            <!-- poi -->
+            <dependency>
+                <groupId>org.apache.poi</groupId>
+                <artifactId>poi</artifactId>
+                <version>${poi}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.poi</groupId>
+                <artifactId>poi-ooxml</artifactId>
+                <version>${poi}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
