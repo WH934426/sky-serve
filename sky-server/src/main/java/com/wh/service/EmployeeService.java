@@ -5,6 +5,7 @@ import com.wh.dto.EmployeeLoginDTO;
 import com.wh.dto.EmployeePageQueryDTO;
 import com.wh.entity.EmployeeEntity;
 import com.wh.result.PageResult;
+import com.wh.vo.EmployeeLoginVO;
 
 /**
  * 员工管理接口
@@ -16,7 +17,7 @@ public interface EmployeeService {
      * @param employeeLoginDTO 员工登录时传递的数据模型
      * @return 员工实体信息
      */
-    EmployeeEntity empLogin(EmployeeLoginDTO employeeLoginDTO);
+    EmployeeLoginVO empLogin(EmployeeLoginDTO employeeLoginDTO);
 
     /**
      * 添加员工

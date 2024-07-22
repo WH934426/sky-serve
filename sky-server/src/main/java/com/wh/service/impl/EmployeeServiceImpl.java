@@ -2,6 +2,7 @@ package com.wh.service.impl;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import com.wh.constant.JwtClaimsConstant;
 import com.wh.constant.MessageConstant;
 import com.wh.constant.PasswordConstant;
 import com.wh.constant.StatusConstant;
@@ -13,14 +14,19 @@ import com.wh.exception.AccountLockedException;
 import com.wh.exception.AccountNotFoundException;
 import com.wh.exception.PasswordErrorException;
 import com.wh.mapper.EmployeeMapper;
+import com.wh.properties.JwtProperties;
 import com.wh.result.PageResult;
 import com.wh.service.EmployeeService;
+import com.wh.utils.JwtUtil;
+import com.wh.vo.EmployeeLoginVO;
 import jakarta.annotation.Resource;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -31,15 +37,17 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     @Resource
     private EmployeeMapper employeeMapper;
+    @Resource
+    private JwtProperties jwtProperties;
 
     /**
      * 员工登录
      *
      * @param employeeLoginDTO 员工登录时传递的数据模型
-     * @return 员工实体信息
+     * @return 员工登录VO对象
      */
     @Override
-    public EmployeeEntity empLogin(EmployeeLoginDTO employeeLoginDTO) {
+    public EmployeeLoginVO empLogin(EmployeeLoginDTO employeeLoginDTO) {
         // 从dto中获取用户传递的用户名与密码
         String username = employeeLoginDTO.getUsername();
         String password = employeeLoginDTO.getPassword();
@@ -64,7 +72,20 @@ public class EmployeeServiceImpl implements EmployeeService {
             throw new AccountLockedException(MessageConstant.ACCOUNT_LOCKED);
         }
 
-        return employee;
+        // 生成token
+        Map<String, Object> claims = new HashMap<>();
+        claims.put(JwtClaimsConstant.EMP_ID, employee.getId());
+        String token = JwtUtil.createJWT(
+                jwtProperties.getAdminSecretKey(),
+                jwtProperties.getAdminTtl(),
+                claims);
+
+        return EmployeeLoginVO.builder()
+                .id(employee.getId())
+                .username(employee.getUsername())
+                .name(employee.getName())
+                .token(token)
+                .build();
     }
 
     /**
@@ -77,7 +98,7 @@ public class EmployeeServiceImpl implements EmployeeService {
         EmployeeEntity employee = new EmployeeEntity();
         // 对象属性拷贝
         BeanUtils.copyProperties(employeeDTO, employee);
-        //设置账号的状态，默认正常状态 1表示正常 0表示锁定
+        // 设置账号的状态，默认正常状态 1表示正常 0表示锁定
         employee.setStatus(StatusConstant.ENABLE);
         // 设置默认密码
         employee.setPassword(DigestUtils.md5DigestAsHex(PasswordConstant.DEFAULT_PASSWORD.getBytes()));
@@ -141,7 +162,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Override
     public void updateEmp(EmployeeDTO employeeDTO) {
         EmployeeEntity employee = new EmployeeEntity();
-        BeanUtils.copyProperties(employeeDTO,employee);
+        BeanUtils.copyProperties(employeeDTO, employee);
         employeeMapper.updateEmp(employee);
     }
 }
