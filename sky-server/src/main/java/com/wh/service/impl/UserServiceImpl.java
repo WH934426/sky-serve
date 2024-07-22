@@ -3,15 +3,18 @@ package com.wh.service.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.wh.constant.JwtClaimsConstant;
 import com.wh.constant.MessageConstant;
 import com.wh.dto.UserLoginDTO;
 import com.wh.entity.UserEntity;
 import com.wh.exception.LoginFailedException;
 import com.wh.mapper.UserMapper;
+import com.wh.properties.JwtProperties;
 import com.wh.properties.WeChatProperties;
 import com.wh.service.UserService;
 import com.wh.utils.HttpClientUtil;
-import jakarta.annotation.Resource;
+import com.wh.utils.JwtUtil;
+import com.wh.vo.UserLoginVO;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
 
@@ -24,24 +27,28 @@ import java.util.Map;
  */
 @Service
 public class UserServiceImpl implements UserService {
-    @Resource
-    private UserMapper userMapper;
-    @Resource
-    private WeChatProperties weChatProperties;
-
     // 微信服务接口地址
     public static final String WX_LOGIN = "https://api.weixin.qq.com/sns/jscode2session";
+    private final UserMapper userMapper;
+    private final WeChatProperties weChatProperties;
+    private final JwtProperties jwtProperties;
+
+    public UserServiceImpl(UserMapper userMapper, WeChatProperties weChatProperties, JwtProperties jwtProperties) {
+        this.userMapper = userMapper;
+        this.weChatProperties = weChatProperties;
+        this.jwtProperties = jwtProperties;
+    }
 
     /**
      * 处理微信登录请求。
      * 通过接收微信登录代码，获取用户OpenID，进而完成用户登录或注册流程。
      *
      * @param userLoginDTO 包含微信登录代码的用户登录DTO（数据传输对象）。
-     * @return 成功登录或注册后的用户实体。
+     * @return 成功登录或注册后的用户token信息
      * @throws LoginFailedException 如果无法获取OpenID或OpenID对应的用户已存在，则抛出登录失败异常。
      */
     @Override
-    public UserEntity wxLogin(@RequestBody UserLoginDTO userLoginDTO) {
+    public UserLoginVO wxLogin(@RequestBody UserLoginDTO userLoginDTO) {
         // 根据登录代码获取微信OpenID
         String openid = getOpenid(userLoginDTO.getCode());
         // 检查OpenID是否获取成功，如果失败则抛出登录失败异常
@@ -58,10 +65,20 @@ public class UserServiceImpl implements UserService {
                     .build();
             userMapper.addUser(user);
         }
-        // 返回登录或注册成功的用户实体
-        return user;
-    }
+        // 准备JWT的声明部分，包含用户ID
+        Map<String, Object> claims = new HashMap<>();
+        claims.put(JwtClaimsConstant.USER_ID, user.getId());
 
+        // 使用JWT工具和配置的秘钥及声明生成JWT令牌
+        String token = JwtUtil.createJWT(jwtProperties.getUserSecretKey(), jwtProperties.getUserTtl(), claims);
+
+        // 构建用户登录VO，包含用户ID、微信OpenID和JWT令牌
+        return UserLoginVO.builder()
+                .id(user.getId())
+                .openid(user.getOpenid())
+                .token(token)
+                .build();
+    }
 
     /**
      * 根据微信小程序的code换取用户的openid。
