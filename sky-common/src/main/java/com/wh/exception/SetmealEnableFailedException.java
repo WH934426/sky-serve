@@ -5,9 +5,10 @@ package com.wh.exception;
  */
 public class SetmealEnableFailedException extends BaseException {
 
-    public SetmealEnableFailedException(){}
+    public SetmealEnableFailedException() {
+    }
 
-    public SetmealEnableFailedException(String msg){
-        super(msg);
+    public SetmealEnableFailedException(String message) {
+        super(message);
     }
 }
