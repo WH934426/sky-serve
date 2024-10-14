@@ -1,6 +1,7 @@
 package com.wh.controller.admin;
 
 import com.wh.dto.EmployeeDTO;
+import com.wh.dto.EmployeeEditPasswordDTO;
 import com.wh.dto.EmployeeLoginDTO;
 import com.wh.dto.EmployeePageQueryDTO;
 import com.wh.entity.EmployeeEntity;
@@ -109,6 +110,19 @@ public class EmployeeController {
     public Result<Void> updateEmp(@RequestBody EmployeeDTO employeeDTO) {
         log.info("更新员工信息: {}", employeeDTO);
         employeeService.updateEmp(employeeDTO);
+        return Result.success();
+    }
+
+    /**
+     * 修改密码
+     *
+     * @param employeeEditPasswordDTO 修改密码需要的dto类
+     * @return 提示信息
+     */
+    @PutMapping("/editPassword")
+    public Result<String> editEmpPassword(@RequestBody EmployeeEditPasswordDTO employeeEditPasswordDTO) {
+        log.info("修改员工密码：{}", employeeEditPasswordDTO);
+        employeeService.editEmpPassword(employeeEditPasswordDTO);
         return Result.success();
     }
 }

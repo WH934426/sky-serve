@@ -7,11 +7,13 @@ import com.wh.constant.MessageConstant;
 import com.wh.constant.PasswordConstant;
 import com.wh.constant.StatusConstant;
 import com.wh.dto.EmployeeDTO;
+import com.wh.dto.EmployeeEditPasswordDTO;
 import com.wh.dto.EmployeeLoginDTO;
 import com.wh.dto.EmployeePageQueryDTO;
 import com.wh.entity.EmployeeEntity;
 import com.wh.exception.AccountLockedException;
 import com.wh.exception.AccountNotFoundException;
+import com.wh.exception.PasswordEditFailedException;
 import com.wh.exception.PasswordErrorException;
 import com.wh.mapper.EmployeeMapper;
 import com.wh.properties.JwtProperties;
@@ -164,5 +166,23 @@ public class EmployeeServiceImpl implements EmployeeService {
         EmployeeEntity employee = new EmployeeEntity();
         BeanUtils.copyProperties(employeeDTO, employee);
         employeeMapper.updateEmp(employee);
+    }
+
+    /**
+     * 修改密码
+     *
+     * @param employeeEditPasswordDTO 修改密码dto
+     */
+    @Override
+    public void editEmpPassword(EmployeeEditPasswordDTO employeeEditPasswordDTO) {
+        EmployeeEntity employee = employeeMapper.getEmpById(employeeEditPasswordDTO.getEmpId());
+        if (employee.getPassword().equals(DigestUtils.md5DigestAsHex(employeeEditPasswordDTO.getOldPassword().getBytes()))) {
+            // 对新密码进行加密
+            String newPassword = DigestUtils.md5DigestAsHex(employeeEditPasswordDTO.getNewPassword().getBytes());
+            employee.setPassword(newPassword);
+            employeeMapper.updateEmpPassword(employee);
+        } else {
+            throw new PasswordEditFailedException(MessageConstant.PASSWORD_EDIT_FAILED);
+        }
     }
 }

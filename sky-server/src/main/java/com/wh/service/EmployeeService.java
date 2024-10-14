@@ -1,6 +1,7 @@
 package com.wh.service;
 
 import com.wh.dto.EmployeeDTO;
+import com.wh.dto.EmployeeEditPasswordDTO;
 import com.wh.dto.EmployeeLoginDTO;
 import com.wh.dto.EmployeePageQueryDTO;
 import com.wh.entity.EmployeeEntity;
@@ -56,4 +57,11 @@ public interface EmployeeService {
      * @param employeeDTO 员工dto类
      */
     void updateEmp(EmployeeDTO employeeDTO);
+
+    /**
+     * 修改密码
+     *
+     * @param employeeEditPasswordDTO 修改密码dto
+     */
+    void editEmpPassword(EmployeeEditPasswordDTO employeeEditPasswordDTO);
 }
