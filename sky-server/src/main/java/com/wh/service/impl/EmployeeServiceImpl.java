@@ -11,10 +11,7 @@ import com.wh.dto.EmployeeEditPasswordDTO;
 import com.wh.dto.EmployeeLoginDTO;
 import com.wh.dto.EmployeePageQueryDTO;
 import com.wh.entity.EmployeeEntity;
-import com.wh.exception.AccountLockedException;
-import com.wh.exception.AccountNotFoundException;
-import com.wh.exception.PasswordEditFailedException;
-import com.wh.exception.PasswordErrorException;
+import com.wh.exception.*;
 import com.wh.mapper.EmployeeMapper;
 import com.wh.properties.JwtProperties;
 import com.wh.result.PageResult;
@@ -176,6 +173,9 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Override
     public void editEmpPassword(EmployeeEditPasswordDTO employeeEditPasswordDTO) {
         EmployeeEntity employee = employeeMapper.getEmpById(employeeEditPasswordDTO.getEmpId());
+        if (employee == null) {
+            throw new UserNotLoginException(MessageConstant.USER_NOT_LOGIN);
+        }
         if (employee.getPassword().equals(DigestUtils.md5DigestAsHex(employeeEditPasswordDTO.getOldPassword().getBytes()))) {
             // 对新密码进行加密
             String newPassword = DigestUtils.md5DigestAsHex(employeeEditPasswordDTO.getNewPassword().getBytes());
