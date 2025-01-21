@@ -64,7 +64,7 @@ public class DishController {
      * @return 提示信息
      */
     @DeleteMapping
-    public Result<String> delDishBatch(@RequestBody List<Long> ids) {
+    public Result<String> delDishBatch(@RequestParam List<Long> ids) {
         log.info("批量删除菜品:{}", ids);
         dishService.delDishBatch(ids);
         // 删除所有以 dish_开头的键值对
