@@ -39,3 +39,5 @@ build/
 ### File ###
 sky-server/src/main/resources/application-dev.yml
 sky-server/src/main/resources/pem/**
+### 启动redis ###
+_start.bat
