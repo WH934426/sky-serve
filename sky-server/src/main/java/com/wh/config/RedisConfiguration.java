@@ -23,11 +23,11 @@ public class RedisConfiguration {
             redisTemplate.setConnectionFactory(redisConnectionFactory);
             // 设置redis key的序列化器
             redisTemplate.setKeySerializer(new StringRedisSerializer());
-            log.error("创建redis模板对象成功");
+            log.info("创建redis模板对象成功");
             return redisTemplate;
         } catch (Exception e) {
             log.error("创建redis模板对象失败");
-            return null;
+            throw new RuntimeException("创建redis模板对象失败",e);
         }
     }
 }
